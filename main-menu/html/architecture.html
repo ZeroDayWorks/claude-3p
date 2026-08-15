@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 3P — Architecture</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.arch-diagram {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px 24px;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+.arch-svg { display: block; margin: 0 auto; min-width: 880px; }
+.arch-svg text { font-family: var(--font); }
+.arch-svg .lane-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; fill: var(--text-muted);
+}
+.arch-svg .node-rect { rx: 10; ry: 10; stroke-width: 1.5; }
+.arch-svg .node-title { font-size: 13px; font-weight: 600; fill: var(--text); }
+.arch-svg .node-sub { font-size: 11px; fill: var(--text-muted); }
+.arch-svg .edge { stroke: var(--text-muted); stroke-width: 1.5; fill: none; }
+.arch-svg .edge-label { font-size: 10.5px; fill: var(--text-muted); }
+.arch-svg .edge-bold { stroke: var(--accent); stroke-width: 2; }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 14px; font-size: 12px; color: var(--text-muted); }
+.legend-item { display: flex; align-items: center; gap: 7px; }
+.legend-swatch { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid; }
+
+.model-table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 16px 0; font-size: 14px; }
+.model-table th { background: var(--bg-soft); padding: 12px 14px; text-align: left; font-weight: 600; border-bottom: 2px solid var(--border); }
+.model-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.model-table tr:last-child td { border-bottom: 0; }
+.model-table .tier { font-weight: 600; }
+.tier-opus { color: var(--purple); }
+.tier-sonnet { color: var(--accent); }
+.tier-haiku { color: var(--green); }
+.alias-chip {
+  display: inline-block; font-family: var(--mono); font-size: 12px;
+  padding: 2px 8px; border-radius: 5px; background: var(--bg-soft);
+  margin: 2px 3px 2px 0; color: var(--text-muted);
+}
+.arrow { color: var(--text-muted); font-weight: 700; }
+.physical { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--text); }
+
+.flow-list { list-style: none; padding: 0; margin: 14px 0; counter-reset: step; }
+.flow-list li {
+  counter-increment: step;
+  padding: 12px 14px 12px 48px;
+  position: relative;
+  margin-bottom: 8px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+}
+.flow-list li::before {
+  content: counter(step);
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.flow-list code { font-family: var(--mono); font-size: 12.5px; background: var(--bg-soft); padding: 1px 5px; border-radius: 3px; }
+
+.guardrail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin: 16px 0; }
+.guardrail-card {
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; box-shadow: var(--shadow);
+}
+.guardrail-card h4 { font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.guardrail-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.guardrail-card .gicon { width: 28px; height: 28px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; background: var(--accent-soft); flex-shrink: 0; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="dot"></span> Claude 3P Platform</div>
+  <div class="spacer"></div>
+  <nav>
+    <a href="index.html">หน้าหลัก</a>
+    <a href="docs.html">เอกสาร</a>
+    <a href="runbook.html">Runbook</a>
+    <a href="architecture.html">Architecture</a>
+  </nav>
+  <button class="btn-icon" onclick="toggleTheme()" title="สลับธีม">◐</button>
+</header>
+
+<main class="container">
+  <div class="hero">
+    <h1>สถาปัตยกรรมระบบ Claude 3P</h1>
+    <p>ภาพรวมสถาปัตยกรรม — การเชื่อมต่อระหว่าง Claude Cowork, Authentik, LLM Gateway, LLM Server, Guardrail, MCP, และ Observability</p>
+  </div>
+
+  <div class="docs-content">
+
+  <h2 id="overview">ภาพรวมสถาปัตยกรรม (Architecture Overview)</h2>
+  <p>Claude 3P แปลง Claude Desktop / Claude Code ให้ใช้ third-party LLM ผ่าน LiteLLM proxy แทน Anthropic API โดยตรง — พร้อม OIDC SSO, RBAC, MCP tools, และ observability ครบวงจร</p>
+
+  <div class="arch-diagram">
+    <svg class="arch-svg" width="100%" viewBox="0 0 960 430" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="currentColor"/>
+        </marker>
+        <marker id="arrBold" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 z" fill="#2563eb"/>
+        </marker>
+      </defs>
+
+      <!-- Lane backgrounds -->
+      <rect x="20" y="20" width="920" height="80" fill="var(--bg-soft)" rx="12" opacity="0.5"/>
+      <text x="36" y="40" class="lane-label">Client</text>
+
+      <rect x="20" y="120" width="280" height="160" fill="var(--bg-soft)" rx="12" opacity="0.5"/>
+      <text x="36" y="140" class="lane-label">Edge / Auth</text>
+
+      <rect x="320" y="120" width="620" height="160" fill="var(--bg-soft)" rx="12" opacity="0.5"/>
+      <text x="336" y="140" class="lane-label">Gateway + Guardrail + LLM Server</text>
+
+      <rect x="20" y="300" width="445" height="110" fill="var(--bg-soft)" rx="12" opacity="0.5"/>
+      <text x="36" y="320" class="lane-label">MCP Tools</text>
+
+      <rect x="485" y="300" width="455" height="110" fill="var(--bg-soft)" rx="12" opacity="0.5"/>
+      <text x="501" y="320" class="lane-label">Observability</text>
+
+      <!-- Client lane -->
+      <rect class="node-rect" x="310" y="48" width="180" height="44" fill="var(--bg-elev)" stroke="#7c3aed"/>
+      <text x="400" y="68" text-anchor="middle" class="node-title">Claude Desktop / Code</text>
+      <text x="400" y="83" text-anchor="middle" class="node-sub">Cowork client</text>
+
+      <rect class="node-rect" x="520" y="48" width="160" height="44" fill="var(--bg-elev)" stroke="#7c3aed"/>
+      <text x="600" y="68" text-anchor="middle" class="node-title">Browser</text>
+      <text x="600" y="83" text-anchor="middle" class="node-sub">OIDC login</text>
+
+      <!-- Edge / Auth column -->
+      <rect class="node-rect" x="60" y="160" width="200" height="50" fill="var(--bg-elev)" stroke="#d97706"/>
+      <text x="160" y="180" text-anchor="middle" class="node-title">Cloudflare Tunnel</text>
+      <text x="160" y="195" text-anchor="middle" class="node-sub">auth.chatllm.cloud</text>
+
+      <rect class="node-rect" x="60" y="230" width="200" height="50" fill="var(--bg-elev)" stroke="#dc2626"/>
+      <text x="160" y="250" text-anchor="middle" class="node-title">Authentik</text>
+      <text x="160" y="265" text-anchor="middle" class="node-sub">OIDC IdP · :9000</text>
+
+      <!-- Gateway column -->
+      <rect class="node-rect" x="360" y="160" width="180" height="56" fill="var(--bg-elev)" stroke="#2563eb"/>
+      <text x="450" y="184" text-anchor="middle" class="node-title">Claude Gateway</text>
+      <text x="450" y="200" text-anchor="middle" class="node-sub">FastAPI · :4100</text>
+      <text x="450" y="212" text-anchor="middle" class="node-sub" style="font-size:10px">JWT verify + master key</text>
+
+      <rect class="node-rect" x="580" y="160" width="160" height="56" fill="var(--bg-elev)" stroke="#d97706"/>
+      <text x="660" y="184" text-anchor="middle" class="node-title">Guardrail</text>
+      <text x="660" y="200" text-anchor="middle" class="node-sub">RBAC · group check</text>
+      <text x="660" y="212" text-anchor="middle" class="node-sub" style="font-size:10px">anti-spoof · algo lockdown</text>
+
+      <rect class="node-rect" x="770" y="160" width="150" height="56" fill="var(--bg-elev)" stroke="#16a34a"/>
+      <text x="845" y="184" text-anchor="middle" class="node-title">LLM Server</text>
+      <text x="845" y="200" text-anchor="middle" class="node-sub">LiteLLM · :4000</text>
+      <text x="845" y="212" text-anchor="middle" class="node-sub" style="font-size:10px">model routing · OpenCode Zen</text>
+
+      <!-- MCP lane -->
+      <rect class="node-rect" x="60" y="340" width="170" height="50" fill="var(--bg-elev)" stroke="#7c3aed"/>
+      <text x="145" y="361" text-anchor="middle" class="node-title">Gmail MCP</text>
+      <text x="145" y="376" text-anchor="middle" class="node-sub">Streamable HTTP · :3001</text>
+
+      <rect class="node-rect" x="280" y="340" width="170" height="50" fill="var(--bg-elev)" stroke="#16a34a"/>
+      <text x="365" y="361" text-anchor="middle" class="node-title">Web Search MCP</text>
+      <text x="365" y="376" text-anchor="middle" class="node-sub">SearXNG · :8090 / :8888</text>
+
+      <!-- Observability lane -->
+      <rect class="node-rect" x="525" y="340" width="120" height="50" fill="var(--bg-elev)" stroke="#d97706"/>
+      <text x="585" y="361" text-anchor="middle" class="node-title">OTel Collector</text>
+      <text x="585" y="376" text-anchor="middle" class="node-sub">:24318</text>
+
+      <rect class="node-rect" x="665" y="340" width="100" height="50" fill="var(--bg-elev)" stroke="#d97706"/>
+      <text x="715" y="361" text-anchor="middle" class="node-title">Loki</text>
+      <text x="715" y="376" text-anchor="middle" class="node-sub">logs</text>
+
+      <rect class="node-rect" x="785" y="340" width="110" height="50" fill="var(--bg-elev)" stroke="#d97706"/>
+      <text x="840" y="361" text-anchor="middle" class="node-title">Grafana</text>
+      <text x="840" y="376" text-anchor="middle" class="node-sub">:23000</text>
+
+      <!-- Client → MCP Tools -->
+    </svg>
+
+    <div class="legend">
+      <div class="legend-item"><span class="legend-swatch" style="border-color:#2563eb;background:#dbeafe"></span> Gateway / LLM Server</div>
+      <div class="legend-item"><span class="legend-swatch" style="border-color:#dc2626;background:#fee2e2"></span> Auth / Identity</div>
+      <div class="legend-item"><span class="legend-swatch" style="border-color:#d97706;background:#fef3c7"></span> Observability / Edge</div>
+      <div class="legend-item"><span class="legend-swatch" style="border-color:#7c3aed;background:#ede9fe"></span> Client / MCP</div>
+      <div class="legend-item"><span class="legend-swatch" style="border-color:#16a34a;background:#dcfce7"></span> LLM Server</div>
+      <div class="legend-item"><span style="font-size:11px">── solid = data path · ⋯⋯ dashed = control / metadata</span></div>
+    </div>
+  </div>
+
+  <h3>Components</h3>
+  <table class="model-table">
+    <thead><tr><th>Component</th><th>Technology</th><th>หน้าที่</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Claude Desktop / Code</strong></td><td>Electron / CLI</td><td>Client ที่ผู้ใช้รัน — ล็อกอินผ่าน OIDC แล้วเรียก LLM ผ่าน Gateway</td></tr>
+      <tr><td><strong>Cloudflare Tunnel</strong></td><td>cloudflared</td><td>เชื่อม <code>auth.chatllm.cloud</code> ไป Authentik (ไม่เปิด port ออก internet)</td></tr>
+      <tr><td><strong>Authentik</strong></td><td>2025.10.0 + PG16 + Redis7</td><td>OIDC Identity Provider — จัดการ users, groups (RBAC), OAuth clients</td></tr>
+      <tr><td><strong>Claude Gateway</strong></td><td>FastAPI :4100</td><td>ยืนยัน JWT (RS256) จาก Authentik + สลับเป็น master key ก่อนส่งต่อ LLM Server</td></tr>
+      <tr><td><strong>Guardrail</strong></td><td>ในตัว Gateway</td><td>ตรวจ groups (allow/deny), strip spoofing headers, ปฏิเสธ <code>alg:none</code>/HS256</td></tr>
+      <tr><td><strong>LLM Server</strong></td><td>LiteLLM :4000 → OpenCode Zen</td><td>model routing ไป upstream LLM ตาม <code>config.yaml</code></td></tr>
+      <tr><td><strong>Gmail MCP</strong></td><td>Node 22 :3001</td><td>MCP tool สำหรับอ่าน/เขียนอีเมลผ่าน Google OAuth</td></tr>
+      <tr><td><strong>Web Search MCP</strong></td><td>SearXNG :8888 + Adapter :8090</td><td>MCP tool สำหรับค้นเว็บผ่าน SearXNG (self-hosted, mkcert TLS)</td></tr>
+      <tr><td><strong>Observability</strong></td><td>OTel → Loki → Grafana</td><td>เก็บ logs/metrics จากทุก service สอบถามใน Grafana</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Inference Flow — ทุก API call</h3>
+  <ol class="flow-list">
+    <li>Claude Desktop ส่ง <code>POST /v1/chat/completions</code> พร้อม <code>Authorization: Bearer {JWT}</code> ไป Gateway (:4100)</li>
+    <li>Gateway ตรวจ JWT — <code>iss</code>, <code>aud</code>, <code>exp</code>, signature (RS256) ดึง JWKS จาก Authentik (cache 1 ชม.)</li>
+    <li>Guardrail ตรวจ groups: <code>claude-users</code>/<code>claude-admins</code> allow, <code>claude-suspended</code> deny — strip spoofing headers</li>
+    <li>Gateway สลับเป็น <code>LITELLM_MASTER_KEY</code> แล้วส่งต่อไป LLM Server พร้อม <code>x-authenticated-user</code></li>
+    <li>LLM Server route ตาม <code>model</code> ใน request → เลือก physical model ที่ map ไว้ → ส่งไป OpenCode Zen</li>
+    <li> upstream ตอบกลับเป็น streaming → LiteLLM → Gateway → Claude Desktop</li>
+    <li>OTel collector เก็บ telemetry ส่ง Loki → ดูใน Grafana</li>
+  </ol>
+
+  <h2 id="guardrail">Guardrail — การป้องกันด้านความปลอดภัย</h2>
+  <p>Guardrail ฝังอยู่ใน Claude Gateway ทำงานก่อนส่งต่อ request ไป LiteLLM เสมอ:</p>
+  <div class="guardrail-grid">
+    <div class="guardrail-card">
+      <h4><span class="gicon">🔐</span> JWT Verification (RS256)</h4>
+      <p>ยืนยัน signature ด้วย JWKS จาก Authentik, ตรวจ <code>iss</code>/<code>aud</code>/<code>exp</code> (30s leeway), cache 1 ชม. — ถ้า Authentik ล่มใช้ cache เดิม, ไม่มี → 503 (fail closed)</p>
+    </div>
+    <div class="guardrail-card">
+      <h4><span class="gicon">👥</span> RBAC Groups</h4>
+      <p><code>claude-users</code> และ <code>claude-admins</code> = allow · <code>claude-suspended</code> = deny. ปฏิเสธถ้าไม่อยู่ใน group ที่อนุญาต</p>
+    </div>
+    <div class="guardrail-card">
+      <h4><span class="gicon">🛡️</span> Anti-spoofing</h4>
+      <p>Strip <code>x-authenticated-user</code> / <code>x-authenticated-sub</code> ที่ client ส่งมาเสมอ — ป้องกันการปลอมตัวตน</p>
+    </div>
+    <div class="guardrail-card">
+      <h4><span class="gicon">🔒</span> Algorithm Lockdown</h4>
+      <p>ปฏิเสธ <code>alg: none</code> และ HS256 — กัน algorithm confusion attack ที่อาจทำให้ verify ผ่านด้วย public key</p>
+    </div>
+    <div class="guardrail-card">
+      <h4><span class="gicon">🔑</span> Master Key Isolation</h4>
+      <p>LiteLLM (:4000) expose เฉพาะ internal network — bypass Gateway ไม่ได้. Master-key caller ส่งต่อตามต้นฉบับ</p>
+    </div>
+    <div class="guardrail-card">
+      <h4><span class="gicon">🌐</span> MCP Isolation</h4>
+      <p>MCP servers bind เฉพาะ <code>127.0.0.1</code> ไม่เปิดออก internet. Secrets และ tokens ถูก gitignore ทั้งหมด</p>
+    </div>
+  </div>
+
+  <h2 id="model-mapping">Model Mapping — Claude aliases → 3P LLM</h2>
+  <p>Claude Desktop/Code ส่งชื่อ model เป็น <code>opus</code>, <code>sonnet</code>, <code>haiku</code> (หรือชื่อ Claude เต็ม) — LiteLLM map ไป physical model บน OpenCode Zen:</p>
+
+  <table class="model-table">
+    <thead>
+      <tr><th>Tier</th><th>Claude Alias</th><th></th><th>Physical Model</th><th>Protocol</th><th>Use Case</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="tier tier-opus">OPUS</td>
+        <td>
+          <span class="alias-chip">opus</span>
+          <span class="alias-chip">mythos</span>
+        </td>
+        <td class="arrow">→</td>
+        <td class="physical">qwen3.7-max</td>
+        <td>Anthropic</td>
+        <td>งานซับซ้อนสูง / เหมือน Opus</td>
+      </tr>
+      <tr>
+        <td class="tier tier-sonnet">SONNET</td>
+        <td>
+          <span class="alias-chip">sonnet</span>
+          <span class="alias-chip">claude-sonnet-4-5</span>
+          <span class="alias-chip">anthropic/claude-sonnet-4-5</span>
+        </td>
+        <td class="arrow">→</td>
+        <td class="physical">minimax-m3</td>
+        <td>Anthropic</td>
+        <td>default / balanced / coding</td>
+      </tr>
+      <tr>
+        <td class="tier tier-haiku">HAIKU</td>
+        <td>
+          <span class="alias-chip">haiku</span>
+          <span class="alias-chip">fable</span>
+        </td>
+        <td class="arrow">→</td>
+        <td class="physical">minimax-m2.7</td>
+        <td>Anthropic</td>
+        <td>cheap / fast</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    นอกจากนี้ LiteLLM ยังมี physical models สำหรับ OpenAI-compatible clients (Hermes ฯลฯ):
+    <span class="alias-chip">deepseek-v4-flash</span> (cheap),
+    <span class="alias-chip">deepseek-v4-pro</span> (default),
+    <span class="alias-chip">glm-5.2</span> (strong),
+    <span class="alias-chip">kimi-k2.7-code</span> (coding specialist) — ใช้ผ่าน <code>https://opencode.ai/zen/go/v1</code>
+  </div>
+
+  <h3>แผนภาพ Model Routing</h3>
+  <div class="arch-diagram">
+    <svg class="arch-svg" width="100%" viewBox="0 0 820 240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="currentColor"/>
+        </marker>
+      </defs>
+
+      <!-- Client -->
+      <rect class="node-rect" x="20" y="100" width="140" height="44" fill="var(--bg-elev)" stroke="#7c3aed"/>
+      <text x="90" y="120" text-anchor="middle" class="node-title">Claude Desktop</text>
+      <text x="90" y="135" text-anchor="middle" class="node-sub">model: opus/sonnet/haiku</text>
+
+      <!-- Gateway -->
+      <rect class="node-rect" x="200" y="100" width="130" height="44" fill="var(--bg-elev)" stroke="#2563eb"/>
+      <text x="265" y="120" text-anchor="middle" class="node-title">Gateway</text>
+      <text x="265" y="135" text-anchor="middle" class="node-sub">:4100</text>
+
+      <!-- LiteLLM -->
+      <rect class="node-rect" x="380" y="100" width="130" height="44" fill="var(--bg-elev)" stroke="#2563eb"/>
+      <text x="445" y="120" text-anchor="middle" class="node-title">LiteLLM</text>
+      <text x="445" y="135" text-anchor="middle" class="node-sub">model routing</text>
+
+      <!-- 3 tiers -->
+      <rect class="node-rect" x="580" y="30" width="220" height="40" fill="var(--bg-elev)" stroke="#7c3aed"/>
+      <text x="690" y="48" text-anchor="middle" class="node-title" style="fill:#7c3aed">OPUS → qwen3.7-max</text>
+      <text x="690" y="62" text-anchor="middle" class="node-sub">strongest · Anthropic protocol</text>
+
+      <rect class="node-rect" x="580" y="100" width="220" height="40" fill="var(--bg-elev)" stroke="#2563eb"/>
+      <text x="690" y="118" text-anchor="middle" class="node-title" style="fill:#2563eb">SONNET → minimax-m3</text>
+      <text x="690" y="132" text-anchor="middle" class="node-sub">balanced · Anthropic protocol</text>
+
+      <rect class="node-rect" x="580" y="170" width="220" height="40" fill="var(--bg-elev)" stroke="#16a34a"/>
+      <text x="690" y="188" text-anchor="middle" class="node-title" style="fill:#16a34a">HAIKU → minimax-m2.7</text>
+      <text x="690" y="202" text-anchor="middle" class="node-sub">cheap/fast · Anthropic protocol</text>
+
+      <!-- Upstream label -->
+      <text x="690" y="223" text-anchor="middle" class="node-sub" style="font-size:10px">→ OpenCode Zen (opencode.ai/zen/go)</text>
+
+      <!-- Direction lines -->
+      <path class="edge edge-bold" d="M160,122 L200,122" marker-end="url(#arr2)"/>
+      <path class="edge edge-bold" d="M330,122 L380,122" marker-end="url(#arr2)"/>
+      <path class="edge" d="M510,110 Q545,75 580,50" marker-end="url(#arr2)"/>
+      <path class="edge" d="M510,122 L580,122" marker-end="url(#arr2)"/>
+      <path class="edge" d="M510,134 Q545,155 580,190" marker-end="url(#arr2)"/>
+    </svg>
+  </div>
+
+  </div>
+</main>
+
+<footer class="footer">
+  Claude 3P Platform · Architecture overview · ดู Show Case ที่ <a href="showcase.html">หน้า Show Case</a>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

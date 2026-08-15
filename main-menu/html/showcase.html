@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 3P — Show Case</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.showcase-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow);
+}
+.showcase-card .sc-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.sc-num {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px; font-weight: 700;
+  color: white; flex-shrink: 0;
+}
+.sc-num.purple { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+.sc-num.blue { background: linear-gradient(135deg, #2563eb, #3b82f6); }
+.sc-num.green { background: linear-gradient(135deg, #16a34a, #22c55e); }
+.sc-num.amber { background: linear-gradient(135deg, #d97706, #f59e0b); }
+.sc-num.red { background: linear-gradient(135deg, #dc2626, #ef4444); }
+.sc-num.teal { background: linear-gradient(135deg, #0d9488, #14b8a6); }
+.sc-title { font-size: 18px; font-weight: 700; }
+.sc-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+.sc-body { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.sc-section > h4 {
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 10px;
+}
+.sc-section > ul { margin: 0 0 0 18px; padding: 0; }
+.sc-section > ul li { margin-bottom: 6px; font-size: 13.5px; line-height: 1.55; }
+.sc-flow {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  white-space: pre;
+  overflow-x: auto;
+}
+.sc-concept {
+  background: linear-gradient(135deg, var(--accent-soft), var(--purple-soft));
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px;
+  border-radius: 0 10px 10px 0;
+  margin-top: 14px;
+  font-size: 13.5px;
+  grid-column: 1 / -1;
+}
+.sc-concept strong { color: var(--accent); }
+.ws-tree {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin: 18px 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  box-shadow: var(--shadow);
+  white-space: pre;
+  overflow-x: auto;
+}
+.ws-tree .dir { color: var(--accent); font-weight: 600; }
+.ws-tree .desc { color: var(--text-muted); }
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+.overview-tile {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  transition: transform .15s, box-shadow .15s;
+}
+.overview-tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.overview-tile .ot-icon { font-size: 22px; margin-bottom: 8px; }
+.overview-tile .ot-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.overview-tile .ot-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+@media (max-width: 700px) { .sc-body { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="dot"></span> Claude 3P Platform</div>
+  <div class="spacer"></div>
+  <nav>
+    <a href="index.html">หน้าหลัก</a>
+    <a href="docs.html">เอกสาร</a>
+    <a href="runbook.html">Runbook</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="showcase.html">Show Case</a>
+  </nav>
+  <button class="btn-icon" onclick="toggleTheme()" title="สลับธีม">◐</button>
+</header>
+
+<main class="container">
+  <div class="hero">
+    <h1>Show Case — Excise Cowork Demo</h1>
+    <p>ภาพรวมการใช้งาน Claude Cowork กับข้อมูลกรมสรรพสามิต — 6 use cases ตั้งแต่อ่านกฎหมาย ถามตอบ วิเคราะห์ ตรวจสอบ สร้างรายงาน จนถึง Email</p>
+  </div>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <h3>Overview</h3>
+      <a href="#overview">ภาพรวม Use Cases</a>
+      <a href="#workspace">Workspace</a>
+      <h3>Showcases</h3>
+      <a href="#case01">01 สรุปกฎหมาย</a>
+      <a href="#case02">02 ถามตอบเอกสาร</a>
+      <a href="#case03">03 วิเคราะห์ภาษี</a>
+      <a href="#case04">04 ตรวจสอบข้อมูล</a>
+      <a href="#case05">05 PowerPoint</a>
+      <a href="#case06">06 Email</a>
+      <h3>Governance</h3>
+      <a href="#limitations">ข้อจำกัดและข้อแนะนำ</a>
+    </aside>
+
+    <div class="docs-content">
+
+  <h2 id="overview">ภาพรวม Use Cases</h2>
+  <p>Claude Cowork ทำงานบน Workspace ที่จัดเอกสารเป็น 4 หมวด — กฎหมาย คู่มือ ยุทธศาสตร์ และข้อมูลภาษี — แล้วสร้างผลลัพธ์ที่ผู้บริหารใช้ได้จริง</p>
+
+  <div class="overview-grid">
+    <div class="overview-tile">
+      <div class="ot-icon">📋</div>
+      <div class="ot-title">01 สรุปกฎหมาย</div>
+      <div class="ot-desc">อ่านกฎหมายภาษีสรรพสามิต สรุปสาระสำคัญ และสร้าง HTML + PowerPoint</div>
+    </div>
+    <div class="overview-tile">
+      <div class="ot-icon">💬</div>
+      <div class="ot-title">02 ถามตอบเอกสาร</div>
+      <div class="ot-desc">Cross-document reasoning — รวมคำตอบจากกฎหมาย คู่มือ และยุทธศาสตร์</div>
+    </div>
+    <div class="overview-tile">
+      <div class="ot-icon">📊</div>
+      <div class="ot-title">03 วิเคราะห์ภาษี</div>
+      <div class="ot-desc">เปรียบเทียบ หาแนวโน้ม ตรวจจับ anomaly สร้าง Excel summary</div>
+    </div>
+    <div class="overview-tile">
+      <div class="ot-icon">✅</div>
+      <div class="ot-title">04 ตรวจสอบข้อมูล</div>
+      <div class="ot-desc">Missing, duplicate, total ผิด, formula ผิด, ข้อมูลขัดแย้ง — AI Second Reviewer</div>
+    </div>
+    <div class="overview-tile">
+      <div class="ot-icon">🖥️</div>
+      <div class="ot-title">05 PowerPoint</div>
+      <div class="ot-desc">6 หน้าสำหรับผู้บริหาร เน้น visualization พร้อมระบุแหล่งข้อมูล</div>
+    </div>
+    <div class="overview-tile">
+      <div class="ot-icon">📧</div>
+      <div class="ot-title">06 Email</div>
+      <div class="ot-desc">ร่าง email สรุปประเด็นสำคัญ พร้อมรายการไฟล์แนบ (draft เท่านั้น)</div>
+    </div>
+  </div>
+
+  <h2 id="workspace">Demo Workspace Structure</h2>
+  <p>Workspace แบ่งเป็น 4 หมวดเอกสาร + โฟลเดอร์ Output สำหรับเก็บผลลัพธ์:</p>
+  <pre class="ws-tree">Excise-Cowork-Demo/
+├── 01-Law/            ← กฎหมายและเอกสารเกี่ยวกับการผลิตสุรา
+│   └── กฎหมายภาษีสรรพสามิต_เกี่ยวกับ_การผลิตสุรา.pdf
+├── 02-Manual/         ← คู่มือราชการ
+│   └── คู่มือการใช้งานระบบงานแสดงเครื่องหมายการเสียภาษีV1.pdf
+├── 03-Strategy/       ← แผนและยุทธศาสตร์
+│   └── แผนยุทธศาสตร์กรมสรรพสามิต_5_ปี_พ.ศ._2564_-_2568.pdf
+├── 04-Tax-Data/       ← ข้อมูลการจัดเก็บภาษี (CSV)
+│   ├── การจัดเก็บภาษีสุรา.csv
+│   └── การจัดเก็บภาษีรถยนต์.csv
+└── Output/            ← ผลลัพธ์ที่ Claude สร้างขึ้น</pre>
+
+  <!-- Showcase 01 -->
+  <h2 id="case01"></h2>
+  <div class="showcase-card">
+    <div class="sc-header">
+      <div class="sc-num purple">01</div>
+      <div>
+        <div class="sc-title">สรุปกฎหมายภาษีสรรพสามิต — การผลิตสุรา</div>
+        <div class="sc-sub">อ่านกฎหมาย → สรุป → สร้าง HTML + PowerPoint</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-section">
+        <h4>Prompt</h4>
+        <ul>
+          <li>อ่านเอกสารทั้งหมดที่เกี่ยวข้องกับ "การผลิตสุรา"</li>
+          <li>สรุปสาระสำคัญ ขั้นตอน เงื่อนไข หน้าที่ และข้อควรระวัง</li>
+          <li>ใช้ภาษาที่เข้าใจง่าย</li>
+          <li>พร้อมระบุแหล่งข้อมูล</li>
+          <li>และสร้างผลลัพธ์เป็น HTML Visualization และ PowerPoint</li>
+        </ul>
+      </div>
+      <div class="sc-section">
+        <h4>Output Flow</h4>
+        <div class="sc-flow">Law / Regulation
+       ↓
+Claude Cowork
+       ↓
+Understand + Summarize
+       ↓
+HTML + PowerPoint</div>
+      </div>
+    </div>
+    <div class="sc-concept"><strong>Use Cases:</strong> Summarize Law · Ask Question · Find Clause · Compare Documents · Explain for Non-Lawyer</div>
+  </div>
+
+  <!-- Showcase 02 -->
+  <h2 id="case02"></h2>
+  <div class="showcase-card">
+    <div class="sc-header">
+      <div class="sc-num blue">02</div>
+      <div>
+        <div class="sc-title">ถามตอบจากเอกสารราชการ</div>
+        <div class="sc-sub">Cross-document reasoning — รวมคำตอบจากหลายเอกสาร</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-section">
+        <h4>ตัวอย่างคำถาม</h4>
+        <ul>
+          <li>การผลิตสุราต้องดำเนินการตามขั้นตอนใดบ้าง?</li>
+          <li>เอกสารกฎหมาย คู่มือ และยุทธศาสตร์กล่าวถึงเรื่องนี้อย่างไร?</li>
+        </ul>
+      </div>
+      <div class="sc-section">
+        <h4>Reasoning Flow</h4>
+        <div class="sc-flow">        Question
+           │
+           ▼
+   ┌──────────────┐
+   │ Claude Cowork│
+   └──────┬───────┘
+          │
+  ┌───────┼────────┐
+  ▼       ▼        ▼
+ Law    Manual   Strategy
+  │       │        │
+  └───────┼────────┘
+          ▼
+ Consolidated Answer</div>
+      </div>
+    </div>
+    <div class="sc-concept"><strong>จุดขาย:</strong> Cross-document reasoning — ไม่ได้ตอบจากเอกสารเดียว แต่รวมคำตอบจากกฎหมาย คู่มือ และยุทธศาสตร์</div>
+  </div>
+
+  <!-- Showcase 03 -->
+  <h2 id="case03"></h2>
+  <div class="showcase-card">
+    <div class="sc-header">
+      <div class="sc-num green">03</div>
+      <div>
+        <div class="sc-title">วิเคราะห์ข้อมูลการจัดเก็บภาษี</div>
+        <div class="sc-sub">เปรียบเทียบ · แนวโน้ม · Anomaly · สร้าง Excel Summary</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-section">
+        <h4>Prompt</h4>
+        <ul>
+          <li>วิเคราะห์ข้อมูลการจัดเก็บภาษีทั้งหมดใน Workspace</li>
+          <li>เปรียบเทียบแต่ละประเภท</li>
+          <li>หาแนวโน้มที่น่าสนใจ</li>
+          <li>ระบุข้อมูลผิดปกติที่ควรตรวจสอบ</li>
+          <li>และสร้าง Excise-Tax-Management-Summary.xlsx</li>
+        </ul>
+      </div>
+      <div class="sc-section">
+        <h4>Output Flow</h4>
+        <div class="sc-flow">Excel Files
+    ↓
+Analyze
+    ↓
+Compare / Trend / Anomaly
+    ↓
+Management Summary.xlsx</div>
+      </div>
+    </div>
+    <div class="sc-concept"><strong>Excel Structure:</strong> Executive Summary · Monthly Trend · Tax Category · YoY Comparison · Anomaly · Raw Data</div>
+  </div>
+
+  <!-- Showcase 04 -->
+  <h2 id="case04"></h2>
+  <div class="showcase-card">
+    <div class="sc-header">
+      <div class="sc-num amber">04</div>
+      <div>
+        <div class="sc-title">ตรวจสอบความถูกต้องของข้อมูล</div>
+        <div class="sc-sub">AI Second Reviewer — ตรวจก่อนส่งต่อ แต่ยังมี Human Review</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-section">
+        <h4>ตรวจสอบ</h4>
+        <ul>
+          <li>Missing Data</li>
+          <li>Duplicate</li>
+          <li>Total ผิด</li>
+          <li>Formula ผิด</li>
+          <li>วันที่ผิดปกติ</li>
+          <li>หน่วยข้อมูลไม่ตรงกัน</li>
+          <li>ข้อมูลขัดแย้งระหว่างไฟล์</li>
+        </ul>
+      </div>
+      <div class="sc-section">
+        <h4>ตัวอย่างผลลัพธ์</h4>
+        <div class="sc-flow">Document Validation
+
+Files checked    12
+Passed            9
+Warnings          2
+Critical          1
+
+⚠ Vehicle-Tax.xlsx
+
+Detail  : 12,453.22
+Summary : 12,435.22
+Difference: 18.00
+
+Recommendation:
+ตรวจสอบข้อมูลก่อนจัดทำรายงาน</div>
+      </div>
+    </div>
+    <div class="sc-concept"><strong>Concept:</strong> AI Second Reviewer — AI ช่วยตรวจงานก่อนส่งต่อ แต่ยังต้องมี Human Review ก่อนใช้จริง</div>
+  </div>
+
+  <!-- Showcase 05 -->
+  <h2 id="case05"></h2>
+  <div class="showcase-card">
+    <div class="sc-header">
+      <div class="sc-num red">05</div>
+      <div>
+        <div class="sc-title">สร้าง PowerPoint สำหรับผู้บริหาร</div>
+        <div class="sc-sub">6 หน้า · เน้น Visualization · ระบุ Source</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-section">
+        <h4>Prompt</h4>
+        <ul>
+          <li>จากผลการวิเคราะห์ทั้งหมด</li>
+          <li>สร้าง PowerPoint สำหรับผู้บริหาร 6 หน้า</li>
+          <li>เน้น Visualization</li>
+          <li>ใช้ข้อความให้น้อย</li>
+          <li>และแสดง Source ของข้อมูล</li>
+        </ul>
+      </div>
+      <div class="sc-section">
+        <h4>6 หน้า</h4>
+        <div class="sc-flow">01 Executive Summary
+02 Excise Tax Overview
+03 Revenue Trend
+04 Tax Category Comparison
+05 Key Findings / Issues
+06 Recommendations</div>
+      </div>
+    </div>
+    <div class="sc-concept"><strong>Flow:</strong> Raw Files → Analyze → Verify → Explain → Management PowerPoint</div>
+  </div>
+
+  <!-- Showcase 06 -->
+  <h2 id="case06"></h2>
+  <div class="showcase-card">
+    <div class="sc-header">
+      <div class="sc-num teal">06</div>
+      <div>
+        <div class="sc-title">Email ถึงผู้บริหาร</div>
+        <div class="sc-sub">Draft เท่านั้น · ห้ามส่งอัตโนมัติ</div>
+      </div>
+    </div>
+    <div class="sc-body">
+      <div class="sc-section">
+        <h4>Prompt</h4>
+        <ul>
+          <li>จากข้อมูลและ Presentation ที่สร้างขึ้น</li>
+          <li>ร่าง Email สำหรับส่งผู้บริหาร</li>
+          <li>สรุปเฉพาะประเด็นสำคัญ</li>
+          <li>ระบุประเด็นที่ควรติดตาม</li>
+          <li>และรายการไฟล์แนบ</li>
+          <li>ให้สร้างเป็น Draft เท่านั้น ห้ามส่งอัตโนมัติ</li>
+        </ul>
+      </div>
+      <div class="sc-section">
+        <h4>Flow</h4>
+        <div class="sc-flow">Data
+ ↓
+Analysis
+ ↓
+Excel
+ ↓
+PowerPoint
+ ↓
+Email Draft</div>
+      </div>
+    </div>
+    <div class="sc-concept"><strong>Constraint:</strong> Claude สร้าง draft เท่านั้น — ผู้ใช้ตรวจทานและส่งเองเสมอ</div>
+  </div>
+
+  <!-- Limitations -->
+  <h2 id="limitations">ข้อจำกัดและข้อแนะนำ</h2>
+  <div class="showcase-card">
+    <div class="sc-body" style="grid-template-columns:1fr">
+      <div class="sc-section">
+        <h4>Governance</h4>
+        <ul>
+          <li>Claude Cowork ควรใช้งานภายใต้ Governance ขององค์กร</li>
+          <li>ต้องมีผู้ดูแลระบบและ AI Platform</li>
+          <li>ต้องกำหนด Authentication / Authorization</li>
+          <li>ต้องควบคุมสิทธิ์การเข้าถึง Workspace และ MCP</li>
+          <li>ต้องมี Audit Log และ Observability</li>
+        </ul>
+      </div>
+      <div class="sc-section">
+        <h4>การใช้งาน AI</h4>
+        <ul>
+          <li>ข้อมูลสำคัญควรมี Human Review ก่อนใช้งานจริง</li>
+          <li>AI อาจตีความข้อมูลหรือเอกสารผิดได้</li>
+          <li>งานที่ต้องใช้ Reasoning หลายเอกสารควรใช้ Model ระดับกลางถึงสูง</li>
+          <li>ควรมี LLM Gateway สำหรับควบคุม Model, Policy, Cost และ Fallback</li>
+          <li>งานที่มีผลทางกฎหมายหรือการตัดสินใจสำคัญ ไม่ควรใช้ผล AI โดยไม่มีการตรวจสอบจากผู้รับผิดชอบ</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  Claude 3P Platform · Show Case · ดูภาพรวมระบบที่ <a href="architecture.html">Architecture</a>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
