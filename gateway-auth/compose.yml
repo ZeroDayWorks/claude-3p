@@ -1,0 +1,28 @@
+name: gateway-auth
+
+include:
+  - path: authentik/compose.yml
+  - path: ollama-litellm/docker-compose.yml
+
+services:
+  # Local dev + demo ingress: `docker compose --profile tunnel up -d`.
+  # Configure the tunnel's Public Hostname in the Cloudflare Zero Trust
+  # dashboard to point AUTH_DOMAIN at http://authentik-server:9000 (see
+  # Task 10). Not used in VM+DNS mode (Task 11).
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    profiles: [tunnel]
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      # Compose interpolates every service's env block during `docker compose
+      # config`/`up` regardless of which profiles are active, so a required
+      # (":?") var here would break plain `docker compose config` even
+      # without --profile tunnel. Default to empty instead; cloudflared
+      # itself fails loudly at container start if TUNNEL_TOKEN is unset,
+      # which only matters when this profile is actually used (Task 10).
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    networks:
+      - internal
+    depends_on:
+      - server

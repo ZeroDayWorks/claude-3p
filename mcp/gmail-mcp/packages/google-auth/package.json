@@ -1,0 +1,30 @@
+{
+  "name": "@google-workspace/auth",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "express": "^5.2.1",
+    "googleapis": "^173.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/express": "^5.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  },
+  "overrides": {
+    "google-auth-library": "10.5.0"
+  }
+}

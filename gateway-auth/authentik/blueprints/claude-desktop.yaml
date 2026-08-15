@@ -1,0 +1,194 @@
+version: 1
+metadata:
+  name: Claude Desktop OIDC integration
+  labels:
+    blueprints.goauthentik.io/description: |
+      Provisions groups, scope mappings, an OAuth2/OIDC provider, and the
+      Claude Desktop application. Idempotent - safe to re-apply. Uses
+      identifiers: blocks so subsequent runs update in place.
+
+# The default flows and signing key are created by Authentik's built-in
+# blueprints. We reference them by slug/name via !Find so this blueprint
+# doesn't need hardcoded UUIDs.
+
+context:
+  authorization_flow: default-provider-authorization-explicit-consent
+  invalidation_flow:  default-provider-invalidation-flow
+  signing_key_name:   authentik Self-signed Certificate
+  # DEMO values. Production: access_token_validity should drop back to
+  # "minutes=15" (this is the only place that needs to change).
+  access_token_validity: hours=8
+  refresh_token_validity: hours=24
+
+entries:
+  # -----------------------------------------------------------------------
+  # Groups
+  # -----------------------------------------------------------------------
+  - model: authentik_core.group
+    id: group-claude-users
+    identifiers:
+      name: claude-users
+    attrs:
+      attributes:
+        description: Users allowed to sign in to Claude Desktop.
+
+  - model: authentik_core.group
+    id: group-claude-admins
+    identifiers:
+      name: claude-admins
+    attrs:
+      is_superuser: false
+      attributes:
+        description: Claude Desktop admin group (elevated role claim).
+
+  - model: authentik_core.group
+    id: group-claude-suspended
+    identifiers:
+      name: claude-suspended
+    attrs:
+      attributes:
+        description: Deny group - members are blocked from Claude Desktop.
+
+  # -----------------------------------------------------------------------
+  # Scope mappings
+  #
+  # openid / profile / email mirror the standard OIDC scopes but are
+  # explicitly declared so the provider references known-good objects.
+  # inference is the custom scope consumed by the downstream AI Gateway.
+  # -----------------------------------------------------------------------
+  - model: authentik_providers_oauth2.scopemapping
+    id: scope-openid
+    identifiers:
+      managed: goauthentik.io/providers/oauth2/scope-openid-claude
+    attrs:
+      name: "OIDC: openid"
+      scope_name: openid
+      description: OpenID Connect subject identifier.
+      expression: |
+        return {
+            "sub": str(request.user.uid),
+        }
+
+  - model: authentik_providers_oauth2.scopemapping
+    id: scope-profile
+    identifiers:
+      managed: goauthentik.io/providers/oauth2/scope-profile-claude
+    attrs:
+      name: "OIDC: profile"
+      scope_name: profile
+      description: Basic profile claims.
+      expression: |
+        return {
+            "preferred_username": request.user.username,
+            "name": request.user.name,
+        }
+
+  - model: authentik_providers_oauth2.scopemapping
+    id: scope-email
+    identifiers:
+      managed: goauthentik.io/providers/oauth2/scope-email-claude
+    attrs:
+      name: "OIDC: email"
+      scope_name: email
+      description: Email + verification state.
+      expression: |
+        return {
+            "email": request.user.email,
+            "email_verified": True,
+        }
+
+  - model: authentik_providers_oauth2.scopemapping
+    id: scope-inference
+    identifiers:
+      managed: goauthentik.io/providers/oauth2/scope-inference-claude
+    attrs:
+      name: "Claude: inference"
+      scope_name: inference
+      description: |
+        Adds groups + roles + aud=ai-gateway to the access token so the
+        downstream AI Gateway can authorize by group/role membership.
+      expression: |
+        return {
+            "groups": [group.name for group in request.user.ak_groups.all()],
+            "roles": [group.name for group in request.user.ak_groups.all()],
+            "aud": "ai-gateway",
+        }
+
+  # -----------------------------------------------------------------------
+  # Deny policy for claude-suspended
+  # -----------------------------------------------------------------------
+  - model: authentik_policies_expression.expressionpolicy
+    id: policy-claude-access
+    identifiers:
+      name: policy-claude-desktop-access
+    attrs:
+      execution_logging: false
+      expression: |
+        # Deny suspended users; allow claude-users or claude-admins.
+        allowed = {"claude-users", "claude-admins"}
+        denied  = {"claude-suspended"}
+        user_groups = {g.name for g in request.user.ak_groups.all()}
+        if user_groups & denied:
+            return False
+        return bool(user_groups & allowed)
+
+  # -----------------------------------------------------------------------
+  # OAuth2 / OIDC Provider
+  # -----------------------------------------------------------------------
+  - model: authentik_providers_oauth2.oauth2provider
+    id: provider-claude-desktop
+    identifiers:
+      name: Claude Desktop OIDC
+    attrs:
+      client_type: public              # PKCE, no client_secret
+      client_id: claude-desktop
+      # No client_secret for public clients.
+      authorization_flow: !Find [authentik_flows.flow, [slug, !Context authorization_flow]]
+      invalidation_flow:  !Find [authentik_flows.flow, [slug, !Context invalidation_flow]]
+      # RFC 8252 loopback: any localhost port.
+      redirect_uris:
+        - matching_mode: regex
+          url: '^http://127\.0\.0\.1:[0-9]{1,5}/callback$'
+      access_code_validity: minutes=1
+      access_token_validity: !Context access_token_validity
+      refresh_token_validity: !Context refresh_token_validity
+      include_claims_in_id_token: true
+      sub_mode: hashed_user_id
+      issuer_mode: per_provider
+      signing_key: !Find [authentik_crypto.certificatekeypair, [name, !Context signing_key_name]]
+      property_mappings:
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid-claude]]
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-profile-claude]]
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email-claude]]
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-inference-claude]]
+
+  # -----------------------------------------------------------------------
+  # Application
+  # -----------------------------------------------------------------------
+  - model: authentik_core.application
+    id: app-claude-desktop
+    identifiers:
+      slug: claude-desktop
+    attrs:
+      name: Claude Desktop
+      group: Company AI
+      policy_engine_mode: all
+      provider: !KeyOf provider-claude-desktop
+      meta_launch_url: https://claude.ai/
+      meta_description: |
+        Anthropic Claude Desktop signed in via corporate SSO. Access tokens
+        carry aud=ai-gateway plus a groups[] claim for downstream RBAC.
+
+  # -----------------------------------------------------------------------
+  # Policy binding: gate the application on group membership
+  # -----------------------------------------------------------------------
+  - model: authentik_policies.policybinding
+    id: binding-claude-access
+    identifiers:
+      target: !KeyOf app-claude-desktop
+      policy: !KeyOf policy-claude-access
+      order: 0
+    attrs:
+      enabled: true
+      timeout: 30
+      negate: false

@@ -1,0 +1,18 @@
+use_default_settings: true
+
+general:
+  debug: false
+  instance_name: "Cowork Search"
+
+search:
+  safe_search: 0
+  default_lang: auto
+
+  formats:
+    - html
+    - json
+
+server:
+  secret_key: "8f6127e77aa973268d82a8010643e4ecf42c2b926ccf2597c65415f7946c6b2a"
+  limiter: false
+  image_proxy: true

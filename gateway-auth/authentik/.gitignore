@@ -1,0 +1,30 @@
+# Secrets - never commit
+.env
+.env.*
+!.env.example
+
+# Runtime data
+backups/*
+!backups/.gitkeep
+media/*
+!media/.gitkeep
+custom-templates/*
+!custom-templates/.gitkeep
+
+# TLS material
+certs/*.key
+certs/*.pem
+certs/*.crt
+certs/*.p12
+certs/*.pfx
+
+# Logs
+*.log
+logs/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

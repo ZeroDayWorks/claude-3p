@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สรุปกฎหมายภาษีสรรพสามิต เกี่ยวกับ "การผลิตสุรา" (พ.ศ. 2568)</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --primary:#1e3a8a;
+    --accent:#0ea5e9;
+    --success:#16a34a;
+    --warning:#f59e0b;
+    --danger:#dc2626;
+    --bg:#f8fafc;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#475569;
+    --border:#e2e8f0;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:'Sarabun','TH Sarabun New',system-ui,-apple-system,sans-serif;
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.7;
+  }
+  header{
+    background:linear-gradient(135deg,#1e3a8a 0%,#0ea5e9 100%);
+    color:#fff;
+    padding:36px 24px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  }
+  header h1{margin:0 0 8px;font-size:30px;font-weight:700}
+  header .subtitle{font-size:16px;opacity:.92;margin:0}
+  header .meta{margin-top:14px;font-size:13px;opacity:.85}
+  .container{max-width:1240px;margin:0 auto;padding:24px}
+
+  /* Section */
+  .section{
+    background:var(--card);
+    border-radius:14px;
+    padding:24px;
+    margin-bottom:20px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.05);
+    border:1px solid var(--border);
+  }
+  .section h2{
+    margin:0 0 16px;
+    font-size:22px;
+    color:var(--primary);
+    border-bottom:3px solid var(--accent);
+    padding-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .section h2 .num{
+    background:var(--accent);
+    color:#fff;
+    width:34px;height:34px;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:15px;
+    font-weight:700;
+  }
+  .section h3{
+    margin:18px 0 10px;
+    font-size:17px;
+    color:var(--primary);
+  }
+
+  /* Tag */
+  .tag{
+    display:inline-block;
+    padding:3px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    margin-right:6px;
+    margin-bottom:4px;
+  }
+  .tag-primary{background:#dbeafe;color:#1e40af}
+  .tag-success{background:#dcfce7;color:#15803d}
+  .tag-warning{background:#fef3c7;color:#b45309}
+  .tag-danger{background:#fee2e2;color:#b91c1c}
+  .tag-purple{background:#ede9fe;color:#6d28d9}
+  .tag-gray{background:#f1f5f9;color:#334155}
+
+  /* Grid */
+  .grid{display:grid;gap:16px}
+  .grid-2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+  .grid-3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .grid-4{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+
+  /* Card */
+  .card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px;
+    transition:transform .15s,box-shadow .15s;
+  }
+  .card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,0.06)}
+  .card .icon{
+    width:42px;height:42px;border-radius:10px;
+    background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;margin-bottom:10px;font-size:18px;
+  }
+  .card h4{margin:0 0 6px;font-size:15px;color:var(--primary)}
+  .card p{margin:0;color:var(--muted);font-size:14px}
+
+  /* Table */
+  .table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+  table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}
+  th{background:#1e3a8a;color:#fff;padding:12px 10px;text-align:left;font-weight:600;font-size:13px}
+  td{padding:10px;border-top:1px solid var(--border);vertical-align:top}
+  tr:nth-child(even) td{background:#f8fafc}
+  tr:hover td{background:#eff6ff}
+
+  /* Stat */
+  .stat{
+    background:linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%);
+    border-radius:12px;
+    padding:18px;
+    text-align:center;
+  }
+  .stat .v{font-size:28px;font-weight:700;color:#1e3a8a;line-height:1}
+  .stat .l{font-size:13px;color:var(--muted);margin-top:6px}
+
+  /* Box highlight */
+  .box{
+    background:#fffbeb;
+    border-left:4px solid var(--warning);
+    padding:14px 16px;
+    border-radius:6px;
+    margin:12px 0;
+    font-size:14px;
+  }
+  .box-info{background:#eff6ff;border-left-color:var(--accent)}
+  .box-success{background:#f0fdf4;border-left-color:var(--success)}
+  .box-danger{background:#fef2f2;border-left-color:var(--danger)}
+  strong{color:#0f172a}
+
+  /* Mermaid */
+  .mermaid{background:#fff;padding:16px;border-radius:10px;overflow:auto}
+
+  /* Chart container */
+  .chart-box{position:relative;height:340px;padding:8px}
+  .chart-box-sm{position:relative;height:260px;padding:8px}
+
+  /* Pillars */
+  .pillar{
+    background:linear-gradient(135deg,#1e3a8a,#0ea5e9);
+    color:#fff;
+    padding:24px;
+    border-radius:14px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .pillar::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at top right,rgba(255,255,255,.18),transparent 60%);
+  }
+  .pillar .emoji{font-size:38px;display:block;margin-bottom:8px}
+  .pillar h4{margin:0 0 6px;font-size:17px}
+  .pillar p{margin:0;font-size:13px;opacity:.92}
+
+  /* Timeline */
+  .timeline{
+    position:relative;
+    padding:20px 0 20px 40px;
+  }
+  .timeline::before{
+    content:"";
+    position:absolute;
+    left:14px;top:0;bottom:0;
+    width:3px;
+    background:linear-gradient(to bottom,var(--accent),var(--primary));
+  }
+  .tl-item{position:relative;margin-bottom:20px}
+  .tl-item::before{
+    content:"";
+    position:absolute;
+    left:-32px;top:6px;
+    width:14px;height:14px;
+    border-radius:50%;
+    background:#fff;
+    border:3px solid var(--accent);
+  }
+  .tl-item h4{margin:0 0 4px;font-size:15px;color:var(--primary)}
+  .tl-item p{margin:0;color:var(--muted);font-size:14px}
+
+  ul.tight{margin:6px 0 0 18px;padding:0}
+  ul.tight li{margin:4px 0;font-size:14px}
+
+  footer{
+    text-align:center;
+    padding:24px;
+    color:var(--muted);
+    font-size:13px;
+  }
+  footer .warn{
+    display:inline-block;
+    background:#fef3c7;
+    color:#92400e;
+    padding:8px 14px;
+    border-radius:8px;
+    margin-bottom:8px;
+    font-size:13px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍶 สรุปกฎหมายภาษีสรรพสามิต เกี่ยวกับ "การผลิตสุรา"</h1>
+  <p class="subtitle">ชุดกฎหมายลำดับรองภายใต้พระราชบัญญัติภาษีสรรพสามิต (ฉบับที่ 2) พ.ศ. 2568</p>
+  <p class="meta">📄 เอกสารต้นฉบับ: case01.pdf · 19 หน้า · จัดทำสรุปเมื่อ 15 ส.ค. 2569</p>
+</header>
+
+<div class="container">
+
+  <!-- ==================== 1. OVERVIEW ==================== -->
+  <section class="section">
+    <h2><span class="num">1</span>ภาพรวม (Overview)</h2>
+    <p>เอกสารชุดนี้ประกอบด้วยกฎหมาย/กฎระเบียบ <strong>18 ฉบับ</strong> ที่ออกภายใต้กรอบ พ.ร.บ. ภาษีสรรพสามิต (ฉบับที่ 2) พ.ศ. 2568 เพื่อ <strong>ปรับปรุงระบบการอนุญาตผลิตสุราทั้งหมด</strong> ให้ทันสมัย ลดอุปสรรค และคุ้มครองผู้บริโภคและสิ่งแวดล้อม</p>
+
+    <div class="grid grid-4" style="margin-top:18px">
+      <div class="stat">
+        <div class="v">18</div>
+        <div class="l">กฎหมาย/กฎระเบียบ</div>
+      </div>
+      <div class="stat">
+        <div class="v">4</div>
+        <div class="l">ระดับชั้นกฎหมาย</div>
+      </div>
+      <div class="stat">
+        <div class="v">6 มิ.ย. 68</div>
+        <div class="l">วันมีผลใช้บังคับ พ.ร.บ. ฉบับที่ 2</div>
+      </div>
+      <div class="stat">
+        <div class="v">3</div>
+        <div class="l">เป้าหมายหลัก (แข่งขัน-ยืดหยุ่น-คุณภาพ)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 2. BIG PICTURE ==================== -->
+  <section class="section">
+    <h2><span class="num">2</span>Big Picture: โครงสร้างชั้นกฎหมาย</h2>
+    <p>กฎหมายทั้ง 18 ฉบับจัดเรียงเป็น <strong>ลำดับชั้น 4 ระดับ</strong> จากแม่บทสู่กฎระเบียบปฏิบัติ</p>
+
+    <div class="mermaid">
+flowchart TB
+    A["<b>พระราชบัญญัติภาษีสรรพสามิต (ฉบับที่ 2) พ.ศ. 2568</b><br/>มาตรา 153 วรรคสาม<br/>(กฎหมายแม่บท)"]
+    B["<b>กฎกระทรวง (3 ฉบับ)</b><br/>การผลิตสุรา · ค่าธรรมเนียม · แสตมป์สรรพสามิต"]
+    C["<b>ประกาศกรมสรรพสามิต (11 ฉบับ)</b><br/>หลักเกณฑ์-วิธีการ-เงื่อนไข"]
+    D["<b>ระเบียบกรมสรรพสามิต (3 ฉบับ)</b><br/>การกำกับดูแลและควบคุมโรงงาน"]
+    A -->|กำหนดหลักการ| B
+    B -->|อาศัยอำนาจ| C
+    C -->|ใช้เป็นแนวปฏิบัติ| D
+    style A fill:#1e3a8a,stroke:#1e3a8a,color:#fff
+    style B fill:#0ea5e9,stroke:#0ea5e9,color:#fff
+    style C fill:#16a34a,stroke:#16a34a,color:#fff
+    style D fill:#f59e0b,stroke:#f59e0b,color:#fff
+    </div>
+
+    <div class="grid grid-4" style="margin-top:18px">
+      <div class="pillar">
+        <span class="emoji">📜</span>
+        <h4>พระราชบัญญัติ</h4>
+        <p>1 ฉบับ · มาตรา 153<br/>หลักการกำหนดเกณฑ์ผลิตสุรา</p>
+      </div>
+      <div class="pillar">
+        <span class="emoji">⚖️</span>
+        <h4>กฎกระทรวง</h4>
+        <p>3 ฉบับ · การผลิต / ค่าธรรมเนียม / แสตมป์</p>
+      </div>
+      <div class="pillar">
+        <span class="emoji">📋</span>
+        <h4>ประกาศกรมสรรพสามิต</h4>
+        <p>11 ฉบับ · หลักเกณฑ์ วิธีการ เงื่อนไข</p>
+      </div>
+      <div class="pillar">
+        <span class="emoji">🔍</span>
+        <h4>ระเบียบกรมสรรพสามิต</h4>
+        <p>3 ฉบับ · การกำกับดูแลโรงอุตสาหกรรม</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 3. 3 GOALS ==================== -->
+  <section class="section">
+    <h2><span class="num">3</span>เป้าหมายหลัก 3 ด้าน ของการปฏิรูป</h2>
+    <p>พ.ร.บ. ฉบับที่ 2 และกฎกระทรวงการผลิตสุรา พ.ศ. 2568 มุ่งเน้นการปรับโครงสร้าง 3 มิติ</p>
+
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="icon" style="background:#16a34a">🏆</div>
+        <h4>1. เพิ่มขีดความสามารถในการแข่งขัน</h4>
+        <p>จัดประเภทใบอนุญาตเป็น 3 ระดับ (1, 2, 3) ตามขนาดกิจการ แทนการกำกับด้วยกำลังการผลิตขั้นต่ำ</p>
+        <span class="tag tag-success">ยกเลิกกำลังการผลิตขั้นต่ำ</span>
+      </div>
+      <div class="card">
+        <div class="icon" style="background:#0ea5e9">🚀</div>
+        <h4>2. เพิ่มโอกาสและความยืดหยุ่นทางธุรกิจ</h4>
+        <p>เปิดสิทธิ์ให้สหกรณ์/วิสาหกิจชุมชน/ผู้ประกอบการรายย่อย ขอใบอนุญาตได้ทุกชนิดทุกประเภท</p>
+        <span class="tag tag-primary">สนับสนุนสินค้าเกษตรในประเทศ</span>
+      </div>
+      <div class="card">
+        <div class="icon" style="background:#f59e0b">🛡️</div>
+        <h4>3. คุ้มครองผู้บริโภคและสิ่งแวดล้อม</h4>
+        <p>เปลี่ยนจากกำกับด้วย "ขนาดกำลังผลิต" → กำกับด้วย "คุณภาพและความปลอดภัย" ลดภาระ EIA</p>
+        <span class="tag tag-warning">เปลี่ยนกระบวนทัศน์การกำกับดูแล</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 4. FLOW: LICENSE PROCESS ==================== -->
+  <section class="section">
+    <h2><span class="num">4</span>Flow การขอใบอนุญาตผลิตสุรา</h2>
+    <p>เส้นทางการขอใบอนุญาตผลิตสุราเพื่อการค้า ตั้งแต่ยื่นคำขอจนเปิดดำเนินการผลิต</p>
+
+    <div class="mermaid">
+flowchart LR
+    A[ผู้ประกอบการ<br/>ยื่นคำขอ ภส. 04-01] --> B{ตรวจสอบ<br/>เอกสาร}
+    B -->|ไม่ครบ| C[แก้ไข/เพิ่มเติม<br/>ภายในกำหนด]
+    C --> B
+    B -->|ครบถ้วน| D[เจ้าหน้าที่ตรวจประเมิน<br/>สถานที่ตั้งโรงงาน]
+    D --> E{ประเภทใบอนุญาต}
+    E -->|ทั่วไป| F[สรรพสามิตพื้นที่<br/>พิจารณา ≤ 30 วัน]
+    E -->|สุราแช่ ป.2,3 / สุราขาว ป.2,3| G[เสนอ ผอ.สมป.1<br/>กลั่นกรอง]
+    G --> F
+    F --> H[ออกใบอนุญาต<br/>ผลิตสุราเพื่อการค้า]
+    H --> I[แจ้งเปิดดำเนินการผลิต]
+    I --> J[ตรวจประเมินโรงงาน<br/>ก่อนเปิดจริง]
+    J --> K[เริ่มผลิตสุรา]
+    K --> L[ส่งตัวอย่าง<br/>ตรวจคุณภาพน้ำสุรา]
+    L --> M[ปิดแสตมป์สรรพสามิต<br/>ก่อนนำออกจากโรงงาน]
+    style A fill:#dbeafe,stroke:#1e40af
+    style F fill:#fef3c7,stroke:#b45309
+    style H fill:#dcfce7,stroke:#15803d
+    style K fill:#16a34a,stroke:#16a34a,color:#fff
+    style M fill:#dc2626,stroke:#dc2626,color:#fff
+    </div>
+
+    <div class="box box-info">
+      <strong>⏱️ ระยะเวลาพิจารณา:</strong> สุราที่มิใช่เพื่อการค้า ≤ <strong>15 วัน</strong> · สุราเพื่อการค้า ≤ <strong>30 วัน</strong> · ตรวจฉลากอิเล็กทรอนิกส์ ≤ <strong>5 วันทำการ</strong> · ตรวจวิเคราะห์คุณภาพน้ำสุรา ≤ <strong>12 วัน</strong>
+    </div>
+  </section>
+
+  <!-- ==================== 5. LICENSE TYPE COMPARISON ==================== -->
+  <section class="section">
+    <h2><span class="num">5</span>ตารางเปรียบเทียบประเภทใบอนุญาต</h2>
+    <p>ใบอนุญาตผลิตสุราเพื่อการค้า แบ่งเป็น <strong>3 ประเภท (1, 2, 3)</strong> ตามขนาดกิจการและชนิดสุรา</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ประเภท</th>
+            <th>สุราแช่ชนิดเบียร์</th>
+            <th>สุราแช่อื่น (ไม่ใช่เบียร์)</th>
+            <th>สุรากลั่นชนิดสุราขาว</th>
+            <th>สุรากลั่นชนิดอื่น¹</th>
+            <th>สุราสามทับ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>ประเภทที่ 1</strong></td>
+            <td>✓</td>
+            <td>✓</td>
+            <td>✓</td>
+            <td>✓</td>
+            <td>✓ (ผลิตเพื่อขายใน/ส่งออก/ใช้ในอุตสาหกรรม)</td>
+          </tr>
+          <tr>
+            <td><strong>ประเภทที่ 2</strong></td>
+            <td>✓</td>
+            <td>✓</td>
+            <td>✓</td>
+            <td>✓</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>ประเภทที่ 3</strong></td>
+            <td>✓</td>
+            <td>✓</td>
+            <td>✓</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:8px">
+      <em>¹ สุราผสม สุราปรุงพิเศษ สุราพิเศษ และสุรากลั่นอื่นที่มิใช่สุราขาวและสุราสามทับ</em>
+    </p>
+
+    <h3>คุณสมบัติผู้ขอใบอนุญาต (ไม่ใช่เพื่อการค้า)</h3>
+    <div class="grid grid-2">
+      <div class="box box-success">
+        <strong>✓ บุคคลธรรมดา</strong> สัญชาติไทย อายุ ≥ 20 ปีบริบูรณ์
+      </div>
+      <div class="box box-success">
+        <strong>✓ สหกรณ์ / กลุ่มเกษตรกร</strong> วิสาหกิจชุมชน องค์กรเกษตรกร
+      </div>
+      <div class="box box-success">
+        <strong>✓ นิติบุคคล</strong> ตาม ป.พ.พ. ที่หุ้นส่วน/ผู้ถือหุ้นทุกคนเป็นบุคคลธรรมดาสัญชาติไทย
+      </div>
+      <div class="box box-info">
+        <strong>🎯 ข้อยกเว้น:</strong> กำหนดสัดส่วนความเป็นเจ้าของของบุคคลที่มิใช่สัญชาติไทยได้ · รัฐวิสาหกิจผลิตสุรา · ส่งเสริมผู้ประกอบอุตสาหกรรมรายย่อย
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 6. KEY CHANGES ==================== -->
+  <section class="section">
+    <h2><span class="num">6</span>การเปลี่ยนแปลงสำคัญ 5 มิติ</h2>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="icon" style="background:#7c3aed">🔄</div>
+        <h4>จาก "ขนาดกำลังผลิต" → "คุณภาพและความปลอดภัย"</h4>
+        <ul class="tight">
+          <li>ยกเลิกข้อกำหนดกำลังการผลิตขั้นต่ำทั้งหมด</li>
+          <li>ลดข้อจำกัด EIA</li>
+          <li>กำหนดมาตรฐานสถานที่/เครื่องจักรตามกฎหมายสาธารณสุข</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="icon" style="background:#0ea5e9">📍</div>
+        <h4>ผ่อนปรนเงื่อนไขที่ตั้งโรงงาน</h4>
+        <ul class="tight">
+          <li>โรงสุรากลั่นตั้ง <strong>&lt; 100 เมตร</strong> จากแหล่งน้ำสาธารณะได้ หากมีระบบบำบัดน้ำเสียมาตรฐาน</li>
+          <li>ขยายช่องทางจำหน่ายสุราแช่ชนิดเบียร์นอกสถานที่</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="icon" style="background:#16a34a">🌾</div>
+        <h4>สนับสนุนสินค้าเกษตรในประเทศ</h4>
+        <ul class="tight">
+          <li>สหกรณ์/วิสาหกิจชุมชน/กลุ่มเกษตรกร ขอใบอนุญาตได้ทุกชนิดทุกประเภท</li>
+          <li>ผลิตสุราที่อาจมีสีหรือกลิ่นได้ โดยใช้วัตถุดิบในประเทศ</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="icon" style="background:#f59e0b">⛽</div>
+        <h4>สุราสามทับ: ขยายช่องทางใช้งาน</h4>
+        <ul class="tight">
+          <li>ขายในราชอาณาจักร</li>
+          <li>ส่งออกนอกราชอาณาจักร</li>
+          <li>นำไปใช้ในอุตสาหกรรม (เชื้อเพลิง/อุตสาหกรรม) — ต้องได้รับอนุมัติรัฐมนตรี</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="icon" style="background:#dc2626">📱</div>
+        <h4>ดิจิทัลและอิเล็กทรอนิกส์</h4>
+        <ul class="tight">
+          <li>ส่งตัวอย่างฉลากผ่านระบบอิเล็กทรอนิกส์ (แจ้งผลใน 5 วันทำการ)</li>
+          <li>แสตมป์สุรามี <strong>QR Code</strong> ตรวจสอบย้อนกลับ</li>
+          <li>ลายมือชื่ออิเล็กทรอนิกส์รับรองผล</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="icon" style="background:#0ea5e9">⏰</div>
+        <h4>ขยายเวลาก่อสร้างเมื่อมีเหตุจำเป็น</h4>
+        <ul class="tight">
+          <li>ภัยธรรมชาติ</li>
+          <li>หน่วยงานรัฐออกกฎหมายใหม่</li>
+          <li>รออนุญาตจากหน่วยงานอื่น</li>
+          <li>เหตุจำเป็นอื่นที่มีหลักฐานชัดแจ้ง</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 7. CHARTS ==================== -->
+  <section class="section">
+    <h2><span class="num">7</span>สัดส่วนและการกระจายตัวของกฎหมาย</h2>
+    <div class="grid grid-2">
+      <div>
+        <h3>สัดส่วนตามระดับชั้นกฎหมาย</h3>
+        <div class="chart-box"><canvas id="chartTier"></canvas></div>
+      </div>
+      <div>
+        <h3>สัดส่วนตามประเด็นหลัก</h3>
+        <div class="chart-box"><canvas id="chartTopic"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 8. TIMELINE / LAW INVENTORY ==================== -->
+  <section class="section">
+    <h2><span class="num">8</span>บัญชีกฎหมาย 18 ฉบับ (Law Inventory)</h2>
+    <p>รายการกฎหมาย/กฎระเบียบทั้งหมดที่ออกภายใต้ พ.ร.บ. ภาษีสรรพสามิต (ฉบับที่ 2) พ.ศ. 2568</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:50px">#</th>
+            <th>ชื่อกฎหมาย</th>
+            <th>ระดับ</th>
+            <th>ประเด็นหลัก</th>
+            <th>ผลกระทบ/โอกาส</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>พ.ร.บ. ภาษีสรรพสามิต (ฉบับที่ 2) พ.ศ. 2568</td><td><span class="tag tag-primary">พ.ร.บ.</span></td><td>แก้ไขมาตรา 153 วรรคสาม</td><td>กรอบหลักการทั้งหมด</td></tr>
+          <tr><td>2</td><td>กฎกระทรวงการผลิตสุรา พ.ศ. 2568</td><td><span class="tag tag-purple">กฎกระทรวง</span></td><td>ปรับปรุงหลักเกณฑ์การผลิตสุรา</td><td>กระทบผู้ผลิตทุกราย</td></tr>
+          <tr><td>3</td><td>กฎกระทรวงกำหนดค่าธรรมเนียม (ฉบับที่ 3) พ.ศ. 2568</td><td><span class="tag tag-purple">กฎกระทรวง</span></td><td>ค่าธรรมเนียมใบอนุญาต</td><td>กำหนดอัตราใหม่ให้รองรับ</td></tr>
+          <tr><td>4</td><td>กฎกระทรวงชนิดและลักษณะแสตมป์สรรพสามิต (ฉบับที่ 3) พ.ศ. 2568</td><td><span class="tag tag-purple">กฎกระทรวง</span></td><td>ลักษณะแสตมป์สุราใหม่</td><td>สุราแช่อื่น/สุราขาว/สุรากลั่นผสม</td></tr>
+          <tr><td>5</td><td>ประกาศกรมฯ การออกใบอนุญาตผลิตสุราที่มิใช่เพื่อการค้า</td><td><span class="tag tag-success">ประกาศ</span></td><td>แบบ ภส. 04-01/1 และ 04-02/1 · พิจารณา ≤ 15 วัน</td><td>เปิดทางประชาชน/ชุมชน</td></tr>
+          <tr><td>6</td><td>ประกาศกรมฯ การออกใบอนุญาตผลิตสุราเพื่อการค้า</td><td><span class="tag tag-success">ประกาศ</span></td><td>แบบ ภส. 04-01/04-02 · พิจารณา ≤ 30 วัน</td><td>รวมขั้นตอนตรวจประเมิน</td></tr>
+          <tr><td>7</td><td>ประกาศกรมฯ ระบบบำบัดน้ำเสีย (&lt; 100 ม. จากแหล่งน้ำ)</td><td><span class="tag tag-success">ประกาศ</span></td><td>3 โรงงานที่ตั้งใกล้แหล่งน้ำได้</td><td>ผ่อนปรนที่ตั้งโรงงาน</td></tr>
+          <tr><td>8</td><td>ประกาศกรมฯ มาตรฐานเครื่องจักร บุคลากร เครื่องมือ</td><td><span class="tag tag-success">ประกาศ</span></td><td>มาตรฐานเฉพาะของอุปกรณ์</td><td>ควบคุมคุณภาพสุรา</td></tr>
+          <tr><td>9</td><td>ประกาศกรมฯ ขยายเวลาก่อสร้าง/เปิดดำเนินการ</td><td><span class="tag tag-success">ประกาศ</span></td><td>4 กรณีเหตุจำเป็น</td><td>ลดความเสี่ยงใบอนุญาตถูกยกเลิก</td></tr>
+          <tr><td>10</td><td>ประกาศกรมฯ การผลิตสุราที่มิใช่เพื่อการค้า</td><td><span class="tag tag-success">ประกาศ</span></td><td>มาตรฐานคุณภาพ การส่งตัวอย่าง</td><td>กระบวนการผลิตที่โปร่งใส</td></tr>
+          <tr><td>11</td><td>ประกาศกรมฯ การผลิตสุราเพื่อการค้า</td><td><span class="tag tag-success">ประกาศ</span></td><td>แบบแปลน กรรมวิธี ภาชนะบรรจุ</td><td>โรงงานผลิตหลายชนิดได้</td></tr>
+          <tr><td>12</td><td>ประกาศกรมฯ การส่งตัวอย่างฉลากอิเล็กทรอนิกส์</td><td><span class="tag tag-success">ประกาศ</span></td><td>ตรวจสอบฉลาก e-Service · 5 วันทำการ</td><td>ลดขั้นตอนเอกสาร</td></tr>
+          <tr><td>13</td><td>ประกาศกรมฯ การใช้แสตมป์สุราที่มี QR Code</td><td><span class="tag tag-success">ประกาศ</span></td><td>เจ้าหน้าที่ขีดฆ่าแสตมป์ e-System</td><td>ตรวจสอบย้อนกลับได้</td></tr>
+          <tr><td>14</td><td>ประกาศกรมฯ การใช้แสตมป์สรรพสามิตสำหรับสินค้าสุรา</td><td><span class="tag tag-success">ประกาศ</span></td><td>ผู้เสียภาษีขีดฆ่าแสตมป์</td><td>แสตมป์ปิดก่อนออกจากโรงงาน</td></tr>
+          <tr><td>15</td><td>ประกาศกรมฯ การขอ/อนุญาตโอนใบอนุญาต</td><td><span class="tag tag-success">ประกาศ</span></td><td>ใบอนุญาตอายุคงเหลือ ≥ 90 วัน</td><td>ทางเลือกในการโอนธุรกิจ</td></tr>
+          <tr><td>16</td><td>ระเบียบกรมฯ การควบคุมโรงอุตสาหกรรมผลิตสุรา</td><td><span class="tag tag-warning">ระเบียบ</span></td><td>ตรวจทุก 6 เดือน / 1 ปี</td><td>ควบคุมโรงงานทุกประเภท</td></tr>
+          <tr><td>17</td><td>ระเบียบกรมฯ การควบคุมโรงงานสุราแช่และสุราขาว ป.2-3</td><td><span class="tag tag-warning">ระเบียบ</span></td><td>ใช้หลัก Risk Management</td><td>ลดภาระผู้ประกอบการรายย่อย</td></tr>
+          <tr><td>18</td><td>ระเบียบกรมฯ Direct Coding สำหรับเบียร์ ≥ 5,000 หน่วย/ชม.</td><td><span class="tag tag-warning">ระเบียบ</span></td><td>พิมพ์เครื่องหมายแสดงภาษีบนบรรจุภัณฑ์</td><td>เพิ่มประสิทธิภาพและความโปร่งใส</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ==================== 9. TIMELINE & RISKS ==================== -->
+  <section class="section">
+    <h2><span class="num">9</span>Timeline & ความเสี่ยง/ข้อควรระวัง</h2>
+
+    <div class="grid grid-2">
+      <div>
+        <h3>📅 ไทม์ไลน์การบังคับใช้</h3>
+        <div class="timeline">
+          <div class="tl-item">
+            <h4>3 ธ.ค. 2568 · ประกาศในราชกิจจานุเบกษา</h4>
+            <p>วันที่ PDF ต้นฉบับจัดทำ/เผยแพร่</p>
+          </div>
+          <div class="tl-item">
+            <h4>6 มิ.ย. 2568 · พ.ร.บ. ฉบับที่ 2 มีผลใช้บังคับ</h4>
+            <p>เพิ่มมาตรา 153 วรรคสาม เป็นกฎหมายแม่บท</p>
+          </div>
+          <div class="tl-item">
+            <h4>หลัง 6 มิ.ย. 68 · กฎกระทรวง/ประกาศ/ระเบียบ มีผลบังคับใช้</h4>
+            <p>กฎหมายลำดับรองทั้ง 17 ฉบับออกตามมา</p>
+          </div>
+          <div class="tl-item">
+            <h4>ต่อเนื่อง · บทเฉพาะกาลรองรับใบอนุญาตเดิม</h4>
+            <p>คำขอและใบอนุญาตที่ออกตามประกาศฉบับเดิมที่ถูกยกเลิก ให้ยังคงใช้ได้ต่อไป</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3>⚠️ ความเสี่ยงและข้อควรระวัง</h3>
+
+        <div class="box box-danger">
+          <strong>🚨 ข้อยกเว้นสัดส่วนบุคคลต่างด้าว</strong><br/>
+          แม้กฎหมายสนับสนุนผู้ประกอบการไทย แต่ยังคงสามารถกำหนดสัดส่วนความเป็นเจ้าของของบุคคลที่มิใช่สัญชาติไทยได้
+        </div>
+
+        <div class="box box-danger">
+          <strong>🚨 สุราสามทับเพื่ออุตสาหกรรม</strong><br/>
+          ต้องได้รับ <strong>อนุมัติรัฐมนตรี</strong> และปฏิบัติตามหลักเกณฑ์ที่อธิบดีประกาศกำหนด
+        </div>
+
+        <div class="box">
+          <strong>⚠️ สุรากรรมวิธีซับซ้อน</strong><br/>
+          ต้องมี <strong>บุคลากรผู้ควบคุมดูแล</strong> ประจำโรงงาน และเครื่องมือตรวจวิเคราะห์ที่ได้มาตรฐาน (สอบเทียบ ≥ 1 ปี / แอลกอฮอล์ทุก 6 เดือน)
+        </div>
+
+        <div class="box box-success">
+          <strong>✅ จุดเด่น</strong><br/>
+          ใบอนุญาตผลิตสุราโอนได้ (อายุคงเหลือ ≥ 90 วัน) · ยื่นเอกสารอิเล็กทรอนิกส์ · ตรวจสอบย้อนกลับด้วย QR Code
+        </div>
+
+        <div class="box box-info">
+          <strong>💡 ทางเลือกสำหรับผู้ประกอบการรายย่อย</strong><br/>
+          โรงงาน &lt; 5,000 หน่วย/ชม. ไม่บังคับ Direct Coding สามารถใช้แสตมป์แบบเดิมได้
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 10. RELATIONSHIP ==================== -->
+  <section class="section">
+    <h2><span class="num">10</span>แผนผังความสัมพันธ์: Dependency ระหว่างกฎหมาย</h2>
+    <p>กฎหมายทุกฉบับเชื่อมโยงกับ <strong>พ.ร.บ. ภาษีสรรพสามิต มาตรา 153</strong> โดยกฎหมายลำดับรองจะอ้างอิงกฎกระทรวง และประกาศกรมฯ เป็นแนวปฏิบัติ</p>
+
+    <div class="mermaid">
+flowchart LR
+    A["มาตรา 153<br/>(พ.ร.บ.)"] --> B1["กฎกระทรวง<br/>การผลิตสุรา"]
+    A --> B2["กฎกระทรวง<br/>ค่าธรรมเนียม"]
+    A --> B3["กฎกระทรวง<br/>แสตมป์สรรพสามิต"]
+    B1 --> C1["ประกาศ<br/>ใบอนุญาตไม่ค้า"]
+    B1 --> C2["ประกาศ<br/>ใบอนุญาตเพื่อค้า"]
+    B1 --> C3["ประกาศ<br/>ระบบบำบัดน้ำเสีย"]
+    B1 --> C4["ประกาศ<br/>มาตรฐานเครื่องจักร"]
+    B1 --> C5["ประกาศ<br/>ขยายเวลา"]
+    B1 --> C6["ประกาศ<br/>ผลิตไม่ค้า"]
+    B1 --> C7["ประกาศ<br/>ผลิตเพื่อค้า"]
+    C7 --> C8["ประกาศ<br/>ฉลากอิเล็กทรอนิกส์"]
+    B1 --> C9["ประกาศ<br/>โอนใบอนุญาต"]
+    B3 --> C10["ประกาศ<br/>แสตมป์ QR Code"]
+    B3 --> C11["ประกาศ<br/>แสตมป์สินค้าสุรา"]
+    B1 --> R1["ระเบียบ<br/>ควบคุมโรงงาน"]
+    B1 --> R2["ระเบียบ<br/>ควบคุมสุราแช่"]
+    B1 --> R3["ระเบียบ<br/>Direct Coding"]
+    style A fill:#1e3a8a,stroke:#1e3a8a,color:#fff
+    style B1 fill:#0ea5e9,stroke:#0ea5e9,color:#fff
+    style B2 fill:#0ea5e9,stroke:#0ea5e9,color:#fff
+    style B3 fill:#0ea5e9,stroke:#0ea5e9,color:#fff
+    style C1 fill:#16a34a,stroke:#16a34a,color:#fff
+    style C2 fill:#16a34a,stroke:#16a34a,color:#fff
+    style C3 fill:#16a34a,stroke:#16a34a,color:#fff
+    style C4 fill:#16a34a,stroke:#16a34a,color:#fff
+    style C5 fill:#16a34a,stroke:#16a34a,color:#fff
+    style C6 fill:#16a34a,stroke:#16a34a,color:#fff
+    style C7 fill:#16a34a,stroke:#16a34a,color:#fff
+    style C8 fill:#16a34a,stroke:#16a34a,color:#fff
+    style C9 fill:#16a34a,stroke:#16a34a,color:#fff
+    style C10 fill:#16a34a,stroke:#16a34a,color:#fff
+    style C11 fill:#16a34a,stroke:#16a34a,color:#fff
+    style R1 fill:#f59e0b,stroke:#f59e0b,color:#fff
+    style R2 fill:#f59e0b,stroke:#f59e0b,color:#fff
+    style R3 fill:#f59e0b,stroke:#f59e0b,color:#fff
+    </div>
+  </section>
+
+  <!-- ==================== 11. KEY INSIGHTS ==================== -->
+  <section class="section" style="background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-color:#f59e0b">
+    <h2><span class="num">11</span>Key Insights · สรุปสาระสำคัญ</h2>
+    <div class="grid grid-2">
+      <div>
+        <h3>🎯 ใจความหลัก (Top 5)</h3>
+        <ol style="margin:0 0 0 18px;padding:0;font-size:15px;line-height:1.9">
+          <li><strong>ยกเลิกกำลังการผลิตขั้นต่ำ</strong> เปลี่ยนเป็นกำกับด้วยคุณภาพและความปลอดภัย</li>
+          <li><strong>เปิดกว้างให้สหกรณ์/วิสาหกิจชุมชน</strong> ขอใบอนุญาตผลิตสุราเพื่อการค้าได้ทุกชนิดทุกประเภท</li>
+          <li><strong>แบ่งใบอนุญาตเป็น 3 ระดับ</strong> (1, 2, 3) ตามขนาดกิจการ</li>
+          <li><strong>สนับสนุนสินค้าเกษตรในประเทศ</strong> ผลิตเป็นสุราที่อาจมีสีหรือกลิ่นได้</li>
+          <li><strong>ดิจิทัลและโปร่งใส</strong> ฉลากอิเล็กทรอนิกส์ + แสตมป์ QR Code</li>
+        </ol>
+      </div>
+
+      <div>
+        <h3>📌 นัยสำคัญสำหรับผู้ประกอบการ</h3>
+        <ul style="margin:0 0 0 18px;padding:0;font-size:15px;line-height:1.9">
+          <li>โรงสุรากลั่นตั้ง <strong>&lt; 100 ม.</strong> จากแหล่งน้ำได้ หากมีระบบบำบัดน้ำเสีย</li>
+          <li>สุราสามทับ: ขยายช่องทางใช้ในอุตสาหกรรม (เชื้อเพลิง) ได้</li>
+          <li>ขยายช่องทางจำหน่ายเบียร์นอกสถานที่ (ภาชนะ ≥ 20 ลิตร)</li>
+          <li>โอนใบอนุญาตได้ (อายุคงเหลือ ≥ 90 วัน)</li>
+          <li>ใบอนุญาตเดิมยังคงใช้ได้ต่อ (บทเฉพาะกาล)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="warn">⚠️ การใช้งานกับข้อมูลของราชการ ต้องมีการตรวจสอบความถูกต้องด้วยตัวเองเสมอ</div>
+  <p>สรุปจากเอกสารต้นฉบับ: case01.pdf · กฎหมายภาษีสรรพสามิต เกี่ยวกับ "การผลิตสุรา"</p>
+  <p>จัดทำโดย AI Document Visualization Summarizer · 15 ส.ค. 2569</p>
+</footer>
+
+<script>
+  mermaid.initialize({ startOnLoad:true, theme:'default', securityLevel:'loose', fontFamily:'Sarabun, sans-serif' });
+
+  // Chart 1: Tier
+  new Chart(document.getElementById('chartTier'),{
+    type:'doughnut',
+    data:{
+      labels:['พ.ร.บ. (1)','กฎกระทรวง (3)','ประกาศกรมฯ (11)','ระเบียบกรมฯ (3)'],
+      datasets:[{
+        data:[1,3,11,3],
+        backgroundColor:['#1e3a8a','#0ea5e9','#16a34a','#f59e0b'],
+        borderWidth:2,borderColor:'#fff'
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:13},padding:14}},
+        title:{display:true,text:'กฎหมาย 18 ฉบับ',font:{size:15,weight:'bold'}},
+        tooltip:{
+          callbacks:{
+            label:(c)=>{
+              const total=c.dataset.data.reduce((a,b)=>a+b,0);
+              const pct=((c.raw/total)*100).toFixed(1);
+              return `${c.label}: ${c.raw} ฉบับ (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Chart 2: Topic
+  new Chart(document.getElementById('chartTopic'),{
+    type:'bar',
+    data:{
+      labels:['การอนุญาต','การผลิต','แสตมป์/ภาษี','การควบคุม','ฉลาก/Digital'],
+      datasets:[{
+        label:'จำนวนฉบับ',
+        data:[4,3,3,3,5],
+        backgroundColor:['#1e3a8a','#0ea5e9','#16a34a','#f59e0b','#7c3aed'],
+        borderRadius:6
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{
+        legend:{display:false},
+        title:{display:true,text:'จำแนกตามประเด็นหลัก',font:{size:15,weight:'bold'}},
+        tooltip:{
+          callbacks:{
+            label:(c)=>`${c.raw} ฉบับ`
+          }
+        }
+      },
+      scales:{
+        x:{beginAtZero:true,ticks:{stepSize:1}}
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+# LiteLLM configuration.
+model_list:
+
+  # ============================================================
+  # OpenAI-compatible physical models
+  # For Hermes / OpenAI-compatible clients
+  # ============================================================
+
+  # CHEAP / FAST
+  - model_name: deepseek-v4-flash
+    litellm_params: &deepseek_v4_flash
+      model: openai/deepseek-v4-flash
+      api_base: https://opencode.ai/zen/go/v1
+      api_key: os.environ/OPENCODE_GO_API_KEY
+
+  # DEFAULT / BEST VALUE
+  - model_name: deepseek-v4-pro
+    litellm_params: &deepseek_v4_pro
+      model: openai/deepseek-v4-pro
+      api_base: https://opencode.ai/zen/go/v1
+      api_key: os.environ/OPENCODE_GO_API_KEY
+
+  # STRONG
+  - model_name: glm-5.2
+    litellm_params: &glm_5_2
+      model: openai/glm-5.2
+      api_base: https://opencode.ai/zen/go/v1
+      api_key: os.environ/OPENCODE_GO_API_KEY
+
+  # CODING SPECIALIST
+  - model_name: kimi-k2.7-code
+    litellm_params: &kimi_k27_code
+      model: openai/kimi-k2.7-code
+      api_base: https://opencode.ai/zen/go/v1
+      api_key: os.environ/OPENCODE_GO_API_KEY
+
+
+  # ============================================================
+  # Anthropic-compatible physical models
+  # For Claude Desktop / Claude Code
+  # ============================================================
+
+  # CHEAP
+  - model_name: minimax-m2.7
+    litellm_params: &minimax_m27
+      model: anthropic/minimax-m2.7
+      api_base: https://opencode.ai/zen/go
+      api_key: os.environ/OPENCODE_GO_API_KEY
+
+  # DEFAULT / BEST VALUE
+  - model_name: minimax-m3
+    litellm_params: &minimax_m3
+      model: anthropic/minimax-m3
+      api_base: https://opencode.ai/zen/go
+      api_key: os.environ/OPENCODE_GO_API_KEY
+
+  # STRONG
+  - model_name: qwen3.7-max
+    litellm_params: &qwen37_max
+      model: anthropic/qwen3.7-max
+      api_base: https://opencode.ai/zen/go
+      api_key: os.environ/OPENCODE_GO_API_KEY
+
+
+  # ============================================================
+  # Claude-style aliases
+  # ============================================================
+
+  # ------------------------------------------------------------
+  # HAIKU -> MiniMax M2.7
+  # cheap / fast
+  # ------------------------------------------------------------
+
+  - model_name: haiku
+    litellm_params:
+      <<: *minimax_m27
+
+  - model_name: fable
+    litellm_params:
+      <<: *minimax_m27
+
+
+  # ------------------------------------------------------------
+  # SONNET -> MiniMax M3
+  # default / balanced / coding
+  # ------------------------------------------------------------
+
+  - model_name: sonnet
+    litellm_params:
+      <<: *minimax_m3
+
+  - model_name: claude-sonnet-4-5
+    litellm_params:
+      <<: *minimax_m3
+
+  - model_name: anthropic/claude-sonnet-4-5
+    litellm_params:
+      <<: *minimax_m3
+
+
+  # ------------------------------------------------------------
+  # OPUS -> Qwen3.7 Max
+  # strongest / expensive
+  # ------------------------------------------------------------
+
+  - model_name: opus
+    litellm_params:
+      <<: *qwen37_max
+
+  - model_name: mythos
+    litellm_params:
+      <<: *qwen37_max
+
+
+litellm_settings:
+  callbacks:
+    - custom_prompt.gateway_prompt
+
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  store_model_in_db: true

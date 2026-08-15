@@ -1,0 +1,99 @@
+name: google-workspace-mcp
+
+x-runtime: &runtime
+  restart: unless-stopped
+  init: true
+  volumes:
+    - ./secrets:/secrets
+
+services:
+  gmail-mcp:
+    <<: *runtime
+    build: ./services/gmail-mcp
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      GMAIL_CREDENTIALS_PATH: /secrets/credentials.json
+      GMAIL_TOKEN_PATH: /secrets/gmail-token.json
+    ports:
+      - "127.0.0.1:3001:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  gmail-auth:
+    profiles: ["auth"]
+    build: ./services/gmail-mcp
+    init: true
+    restart: unless-stopped
+    command: ["node", "dist/auth-web.js"]
+    environment:
+      GMAIL_CREDENTIALS_PATH: /secrets/credentials.json
+      GMAIL_TOKEN_PATH: /secrets/gmail-token.json
+      OAUTH_CALLBACK_BIND: 0.0.0.0
+      OAUTH_CALLBACK_PORT: 3101
+      OAUTH_REDIRECT_HOST: localhost
+    ports:
+      - "127.0.0.1:3101:3101"
+    volumes:
+      - ./secrets:/secrets
+
+  workspace-mcp:
+    <<: *runtime
+    build:
+      context: .
+      dockerfile: services/workspace-mcp/Dockerfile
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      WORKSPACE_CREDENTIALS_PATH: /secrets/credentials.json
+      WORKSPACE_TOKEN_PATH: /secrets/workspace-token.json
+    ports:
+      - "127.0.0.1:3003:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  workspace-auth:
+    profiles: ["auth-workspace"]
+    build:
+      context: .
+      dockerfile: services/workspace-mcp/Dockerfile
+    init: true
+    command: ["node", "services/workspace-mcp/dist/auth-cli.js"]
+    environment:
+      WORKSPACE_CREDENTIALS_PATH: /secrets/credentials.json
+      WORKSPACE_TOKEN_PATH: /secrets/workspace-token.json
+      OAUTH_CALLBACK_BIND: 0.0.0.0
+      OAUTH_CALLBACK_PORT: 3103
+      OAUTH_REDIRECT_HOST: localhost
+    ports:
+      - "127.0.0.1:3103:3103"
+    volumes:
+      - ./secrets:/secrets
+
+  maps-mcp:
+    <<: *runtime
+    build:
+      context: .
+      dockerfile: services/maps-mcp/Dockerfile
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      MAPS_API_KEY: ${MAPS_API_KEY}
+      MAPS_CREDENTIALS_PATH: /secrets/credentials.json
+      MAPS_TOKEN_PATH: /secrets/maps-token.json
+    ports:
+      - "127.0.0.1:3004:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

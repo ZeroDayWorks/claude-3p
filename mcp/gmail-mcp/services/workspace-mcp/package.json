@@ -1,0 +1,31 @@
+{
+  "name": "workspace-mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "auth": "node dist/auth-cli.js",
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/index.js",
+    "start:http": "node dist/http.js",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@google-workspace/auth": "*",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "googleapis": "^173.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  },
+  "overrides": {
+    "google-auth-library": "10.5.0"
+  }
+}

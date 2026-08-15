@@ -1,0 +1,43 @@
+services:
+
+  searxng:
+    image: docker.io/searxng/searxng:latest
+    container_name: cowork-searxng
+    restart: unless-stopped
+
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+
+    ports:
+      - "8888:8080"
+
+    networks:
+      - search-network
+
+
+  adapter:
+    build:
+      context: ./adapter
+
+    container_name: cowork-search-adapter
+    restart: unless-stopped
+
+    environment:
+      SEARXNG_URL: http://searxng:8080
+
+    volumes:
+      - ./certs:/certs:ro
+
+    ports:
+      - "8090:8090"
+
+    depends_on:
+      - searxng
+
+    networks:
+      - search-network
+
+
+networks:
+  search-network:
+    driver: bridge

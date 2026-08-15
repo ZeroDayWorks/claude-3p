@@ -1,0 +1,120 @@
+# This file is included by ../compose.yml (Docker Compose `include:`).
+# It is not intended to be run standalone — the `internal` network it
+# references is declared in ../authentik/compose.yml.
+services:
+  claude-gateway:
+    build:
+      context: ./gateway
+    container_name: claude-local-gateway
+    ports:
+      - "4100:4100"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    environment:
+      LITELLM_BASE_URL: http://litellm:4000
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+      LITELLM_CONFIG_PATH: /app/config.yaml
+      ALLOW_ALL_DOMAINS: ${ALLOW_ALL_DOMAINS:-true}
+      ALLOWED_DOMAINS: ${ALLOWED_DOMAINS:-}
+      MAX_REQUEST_BODY_MB: ${MAX_REQUEST_BODY_MB:-100}
+      CONNECT_TIMEOUT_SECONDS: ${CONNECT_TIMEOUT_SECONDS:-15}
+      REQUEST_TIMEOUT_SECONDS: ${REQUEST_TIMEOUT_SECONDS:-600}
+      STREAM_READ_TIMEOUT_SECONDS: ${STREAM_READ_TIMEOUT_SECONDS:-600}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      OIDC_ENABLED: ${OIDC_ENABLED:-true}
+      OIDC_ISSUER: https://${AUTH_DOMAIN}/application/o/claude-desktop/
+      OIDC_JWKS_URL: ${OIDC_JWKS_URL:-http://authentik-server:9000/application/o/claude-desktop/jwks/}
+      OIDC_AUDIENCE: ${OIDC_AUDIENCE:-ai-gateway}
+      OIDC_ALLOWED_GROUPS: ${OIDC_ALLOWED_GROUPS:-claude-users,claude-admins}
+      OIDC_DENIED_GROUPS: ${OIDC_DENIED_GROUPS:-claude-suspended}
+      OIDC_JWKS_CACHE_TTL_SECONDS: ${OIDC_JWKS_CACHE_TTL_SECONDS:-3600}
+      LITELLM_ADMIN_USERNAME: ${LITELLM_UI_USERNAME:-admin}
+      LITELLM_ADMIN_PASSWORD: ${LITELLM_UI_PASSWORD:-${LITELLM_MASTER_KEY}}
+    depends_on:
+      litellm:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4100/health', timeout=5).read()"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - ai-gateway
+      - internal
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: ollama-litellm
+    expose:
+      - "4000"
+    ports:
+      - "127.0.0.1:4000:4000"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./custom_prompt.py:/app/custom_prompt.py
+    environment:
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY}
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+      OPENCODE_GO_API_KEY: ${OPENCODE_GO_API_KEY}
+      STORE_MODEL_IN_DB: "True"
+      DATABASE_URL: postgresql://litellm:${LITELLM_DB_PASS:-litellm}@litellm-db:5432/litellm
+      LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:-${LITELLM_MASTER_KEY}}
+      UI_USERNAME: ${LITELLM_UI_USERNAME:-admin}
+      UI_PASSWORD: ${LITELLM_UI_PASSWORD:-${LITELLM_MASTER_KEY}}
+      LITELLM_USE_CHAT_COMPLETIONS_URL_FOR_ANTHROPIC_MESSAGES: "true"
+      LITELLM_ROUTE_ALL_CHAT_OPENAI_TO_RESPONSES: "false"
+    depends_on:
+      litellm-db:
+        condition: service_healthy
+    command:
+      - "--config"
+      - "/app/config.yaml"
+      - "--port"
+      - "4000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4000/health/liveliness', timeout=5).read()"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - ai-gateway
+
+  litellm-db:
+    image: docker.io/library/postgres:16-alpine
+    container_name: litellm-db
+    environment:
+      POSTGRES_USER: litellm
+      POSTGRES_PASSWORD: ${LITELLM_DB_PASS:-litellm}
+      POSTGRES_DB: litellm
+    volumes:
+      - litellm-db:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U litellm
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - ai-gateway
+
+volumes:
+  litellm-db:
+
+networks:
+  ai-gateway:
+    driver: bridge

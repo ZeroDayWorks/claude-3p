@@ -1,0 +1,91 @@
+# ============================================================
+# Claude 3P — root .gitignore
+# ครอบคลุมทุก component: gateway-auth, mcp, cowork-search
+# ============================================================
+
+# -------- Secrets & local config --------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+# ครอบคลุม certs/ ทั้งหมด (เช่น cowork-search/certs/)
+# ใช้ .gitkeep ถ้าต้องการเก็บ folder ไว้
+# ยกเว้น gateway-auth/authentik/certs/ ที่มี .gitkeep อยู่ (ไม่มี cert จริง)
+certs/*
+!certs/.gitkeep
+!gateway-auth/authentik/certs/.gitkeep
+secrets/
+!secrets/.gitkeep
+credentials.json
+token*.json
+
+# -------- Python --------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# -------- Node / TypeScript --------
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+.vite/
+coverage/
+.npm
+.eslintcache
+*.log
+logs/
+
+# -------- Docker / runtime --------
+# Local compose data ที่ mount เข้า container (ถ้ามีการแชร์)
+.docker-data/
+*.tar
+*.tar.gz
+
+# -------- IDE / editor --------
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+*.iml
+
+# -------- OS --------
+.Trash-*
+Desktop.ini
+$RECYCLE.BIN/
+
+# -------- Logs & temp --------
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+*.rej
+*~
+
+# -------- Office / binary assets ที่ไม่ใช่ source --------
+# (เก็บไฟล์ demo asset ไว้ เช่น .xlsx, .pdf, .html ใน show-case/)
+# แต่ ignore binary backup files
+*.zip
+*.7z
+*.rar

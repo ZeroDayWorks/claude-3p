@@ -1,0 +1,16 @@
+---
+# Development override.
+#
+# WARNING: DO NOT USE IN PRODUCTION.
+# This file exposes Authentik's internal HTTP (9000) and HTTPS (9443) ports
+# to the loopback interface of the Docker host so a developer can hit the
+# UI directly without a reverse proxy. In production the reverse proxy
+# (see nginx/) is the ONLY ingress and this override MUST be removed
+# (or the ports removed) before deployment. Docker Compose picks up
+# compose.override.yml automatically - rename or delete it to disable.
+
+services:
+  server:
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9443:9443"
