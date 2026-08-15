@@ -1,0 +1,41 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+
+exporters:
+  debug:
+    verbosity: basic
+
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug, otlphttp/loki]
+
+    # Kept only so the POC also accepts these signals if a client sends them.
+    # They are printed to Collector logs; this minimal stack stores logs in Loki.
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+
+  telemetry:
+    logs:
+      level: info

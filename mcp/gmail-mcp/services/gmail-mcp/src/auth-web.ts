@@ -83,7 +83,7 @@ const HTML = `<!doctype html>
     const refreshBadge = document.querySelector('#refreshBadge');
     const expiresAt = document.querySelector('#expiresAt');
     const expiresIn = document.querySelector('#expiresIn');
-    const refreshStatus = document.querySelector('#refreshStatus');
+    const refreshTokenStatus = document.querySelector('#refreshStatus');
     const scope = document.querySelector('#scope');
     const alert = document.querySelector('#alert');
     function badge(element, kind, text) {
@@ -111,7 +111,7 @@ const HTML = `<!doctype html>
         badge(refreshBadge, 'danger', 'ไม่มี');
         expiresAt.textContent = 'ไม่พบ token';
         expiresIn.textContent = '—';
-        refreshStatus.textContent = 'กรุณา Login';
+        refreshTokenStatus.textContent = 'กรุณา Login';
         scope.textContent = '—';
         alert.className = 'alert';
         alert.textContent = 'กรุณากดปุ่ม Re-login เพื่อเชื่อมต่อ Gmail';
@@ -123,7 +123,7 @@ const HTML = `<!doctype html>
       badge(refreshBadge, data.hasRefreshToken && !data.refreshError ? 'success' : 'danger', data.hasRefreshToken && !data.refreshError ? 'พร้อม Auto-refresh' : 'ต้อง Re-login');
       expiresAt.textContent = formatDate(data.accessTokenExpiresAt);
       expiresIn.textContent = formatRemaining(data.accessTokenExpiresInSeconds);
-      refreshStatus.textContent = data.hasRefreshToken ? 'มี — ใช้ต่ออายุอัตโนมัติ' : 'ไม่มี';
+      refreshTokenStatus.textContent = data.hasRefreshToken ? 'มี — ใช้ต่ออายุอัตโนมัติ' : 'ไม่มี';
       scope.textContent = data.scope || 'ไม่ระบุ';
       if (data.refreshError) {
         alert.className = 'alert';
@@ -197,6 +197,12 @@ async function main(): Promise<void> {
 
   const server = http.createServer(async (request, response) => {
     const url = new URL(request.url ?? "/", `http://${redirectHost}:${port}`);
+
+    if (request.method === "GET" && url.pathname === "/favicon.ico") {
+      response.writeHead(204, { "Cache-Control": "public, max-age=86400" });
+      response.end();
+      return;
+    }
 
     if (request.method === "GET" && url.pathname === "/") {
       send(response, 200, HTML, "text/html; charset=utf-8");
