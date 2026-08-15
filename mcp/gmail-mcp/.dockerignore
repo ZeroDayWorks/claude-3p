@@ -1,0 +1,15 @@
+node_modules
+dist
+.env
+*.log
+secrets
+credentials.json
+token.json
+*.bak
+.superpowers
+docs
+*.md
+.git
+.gitignore
+howtosetup.md
+start-point.md

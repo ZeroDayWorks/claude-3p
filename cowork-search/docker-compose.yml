@@ -26,7 +26,7 @@ services:
       SEARXNG_URL: http://searxng:8080
 
     volumes:
-      - ./certs:/certs:ro
+      - ./certs:/certs
 
     ports:
       - "8090:8090"

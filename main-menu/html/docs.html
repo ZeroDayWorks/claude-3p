@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 3P — เอกสารระบบ</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="dot"></span> Claude 3P Platform</div>
+  <div class="spacer"></div>
+  <nav>
+    <a href="index.html">หน้าหลัก</a>
+    <a href="docs.html">เอกสาร</a>
+    <a href="runbook.html">Runbook</a>
+  </nav>
+  <button class="btn-icon" onclick="toggleTheme()" title="สลับธีม">◐</button>
+</header>
+
+<main class="container">
+  <div class="hero">
+    <h1>เอกสารระบบ (Docs)</h1>
+    <p>คำอธิบายแต่ละระบบในแพลตฟอร์ม Claude 3P — หน้าที่, พอร์ต, การเชื่อมต่อ, ข้อจำกัด</p>
+  </div>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <h3>Overview</h3>
+      <a href="#overview">ภาพรวมระบบ</a>
+      <a href="#architecture">สถาปัตยกรรม</a>
+      <a href="#ports">ตารางพอร์ต</a>
+      <h3>Gateway & Auth</h3>
+      <a href="#authentik">Authentik</a>
+      <a href="#claude-gateway">Claude Gateway</a>
+      <a href="#litellm">LiteLLM</a>
+      <h3>MCP</h3>
+      <a href="#gmail-mcp">Gmail MCP</a>
+      <a href="#workspace-mcp">Workspace MCP</a>
+      <a href="#maps-mcp">Maps MCP</a>
+      <h3>Search</h3>
+      <a href="#searxng">SearXNG</a>
+      <a href="#search-adapter">Search Adapter</a>
+      <h3>Observability</h3>
+      <a href="#grafana">Grafana</a>
+      <a href="#loki">Loki</a>
+      <a href="#otel">OTel Collector</a>
+      <h3>Security</h3>
+      <a href="#security">Security Model</a>
+      <a href="#limitations">Known Limitations</a>
+    </aside>
+
+    <div class="docs-content">
+
+<h2 id="overview">ภาพรวมระบบ</h2>
+<p><strong>claude-3P</strong> คือชุดระบบที่ทำให้ผู้ใช้ล็อกอินด้วย <strong>OIDC SSO</strong> (Authentik) แล้วเรียก Claude / open-source LLM ผ่าน <strong>LiteLLM proxy</strong> ได้จาก Claude Desktop / Claude Code โดยตรง พร้อม MCP tools สำหรับงานเอกสาร (Gmail, Calendar, Sheets/Docs/Drive, Maps) และ web search ผ่าน SearXNG — โดยไม่ต้องส่งข้อมูลออก Anthropic API โดยตรง</p>
+
+<div class="note">
+ทั้งหมดรันได้ด้วยคำสั่งเดียวที่ root: <code>docker compose up -d</code>
+</div>
+
+<h2 id="architecture">สถาปัตยกรรม</h2>
+<pre><code>ผู้ใช้ → Claude Desktop/Code
+         ↓ (OAuth + PKCE)
+       Cloudflare Tunnel / DNS
+         ↓
+       Authentik (OIDC IdP, :9000 internal)
+         ↓ JWT (RS256)
+       Claude Gateway (FastAPI :4100)
+         ↓ master key
+       LiteLLM (:4000 internal)
+         ↓ OpenAI-compatible
+       Ollama Cloud / OpenCode
+
+MCP tools (Gmail/Workspace/Maps) ← Claude Desktop เรียกผ่าน Streamable HTTP
+SearXNG ← Search Adapter ← Claude tools
+OTel → Loki → Grafana (observability)</code></pre>
+
+<h2 id="ports">ตารางพอร์ต</h2>
+<table>
+<thead><tr><th>Service</th><th>Container</th><th>Port (host)</th><th>หมายเหตุ</th></tr></thead>
+<tbody>
+<tr><td>Main Menu</td><td>claude-3p-main-menu</td><td>65880</td><td>หน้า dashboard นี้</td></tr>
+<tr><td>Authentik</td><td>authentik-server</td><td>9000 (internal)</td><td>ผ่าน reverse proxy เท่านั้น</td></tr>
+<tr><td>Claude Gateway</td><td>claude-local-gateway</td><td>4100</td><td>API endpoint หลัก</td></tr>
+<tr><td>LiteLLM</td><td>ollama-litellm</td><td>127.0.0.1:4000</td><td>internal — ไม่ expose ออก</td></tr>
+<tr><td>Gmail MCP</td><td>—</td><td>127.0.0.1:3001</td><td>loopback เท่านั้น</td></tr>
+<tr><td>Workspace MCP</td><td>—</td><td>127.0.0.1:3003</td><td>loopback เท่านั้น</td></tr>
+<tr><td>Maps MCP</td><td>—</td><td>127.0.0.1:3004</td><td>loopback เท่านั้น</td></tr>
+<tr><td>SearXNG</td><td>cowork-searxng</td><td>8888</td><td>เปิดออก</td></tr>
+<tr><td>Search Adapter</td><td>cowork-search-adapter</td><td>8090</td><td>self-signed HTTPS</td></tr>
+<tr><td>Grafana</td><td>cowork-poc-grafana</td><td>127.0.0.1:23000</td><td>loopback</td></tr>
+<tr><td>OTel Collector</td><td>cowork-poc-otel</td><td>24318</td><td>OTLP HTTP</td></tr>
+</tbody>
+</table>
+
+<h2 id="authentik">Authentik</h2>
+<p><strong>หน้าที่:</strong> OIDC Identity Provider — จัดการผู้ใช้, กลุ่ม (RBAC), และ OAuth/OIDC clients</p>
+<p><strong>เวอร์ชัน:</strong> 2025.10.0 · PostgreSQL 16 · Redis 7</p>
+<p><strong>พอร์ต:</strong> 9000 (internal — เข้าผ่าน reverse proxy หรือ Cloudflare Tunnel)</p>
+<p><strong>การเชื่อมต่อ:</strong></p>
+<ul>
+<li>Claude Desktop ล็อกอินผ่าน <code>https://${AUTH_DOMAIN}/application/o/authorize/</code></li>
+<li>Claude Gateway ดึง JWKS จาก <code>http://authentik-server:9000/application/o/claude-desktop/jwks/</code></li>
+<li>Blueprints ที่ <code>gateway-auth/authentik/blueprints/claude-desktop.yaml</code> กำหนด groups: <code>claude-users</code>, <code>claude-admins</code>, <code>claude-suspended</code></li>
+</ul>
+<p><strong>ข้อจำกัด:</strong> Access token TTL 8 ชม. (demo) — ปรับได้ที่ blueprint</p>
+
+<h2 id="claude-gateway">Claude Gateway</h2>
+<p><strong>หน้าที่:</strong> FastAPI proxy ที่ยืนยัน JWT (RS256) จาก Authentik แล้วส่งต่อไป LiteLLM ด้วย master key</p>
+<p><strong>พอร์ต:</strong> 4100</p>
+<p><strong>การเชื่อมต่อ:</strong></p>
+<ul>
+<li>รับ <code>POST /v1/chat/completions</code> จาก Claude Desktop</li>
+<li>ตรวจ JWT: <code>iss</code>, <code>aud</code>, <code>exp</code>, groups (RBAC)</li>
+<li>Strip <code>x-authenticated-user</code> ที่ client ส่งมา (กัน spoofing)</li>
+<li>ส่งต่อไป LiteLLM พร้อม <code>x-authenticated-user: &lt;username&gt;</code></li>
+<li>Master-key caller → ส่งต่อตามต้นฉบับ</li>
+</ul>
+<p><strong>Health:</strong> <code>GET /health</code></p>
+
+<h2 id="litellm">LiteLLM</h2>
+<p><strong>หน้าที่:</strong> OpenAI-compatible proxy สำหรับ routing ไป upstream LLMs</p>
+<p><strong>พอร์ต:</strong> 127.0.0.1:4000 (internal — ไม่ expose ออกเพื่อกัน bypass)</p>
+<p><strong>การเชื่อมต่อ:</strong></p>
+<ul>
+<li>รับจาก Claude Gateway ด้วย <code>LITELLM_MASTER_KEY</code></li>
+<li>Route ตาม <code>config.yaml</code>: Ollama Cloud, OpenCode</li>
+<li>DB เก็บ model config / spend tracking</li>
+</ul>
+<p><strong>UI:</strong> <code>http://localhost:4000/ui</code> (login: <code>LITELLM_UI_USERNAME</code> / <code>LITELLM_UI_PASSWORD</code>)</p>
+
+<h2 id="gmail-mcp">Gmail MCP</h2>
+<p><strong>หน้าที่:</strong> MCP server สำหรับอ่าน/เขียน/ค้นอีเมลผ่าน Gmail API</p>
+<p><strong>พอร์ต:</strong> 127.0.0.1:3001</p>
+<p><strong>การเชื่อมต่อ:</strong></p>
+<ul>
+<li>Claude Desktop เรียกผ่าน Streamable HTTP: <code>http://127.0.0.1:3001/mcp</code></li>
+<li>OAuth ครั้งแรก: <code>docker compose --profile auth up -d gmail-auth</code> → เปิด <code>http://localhost:3101</code></li>
+<li>Token เก็บที่ <code>secrets/gmail-token.json</code></li>
+</ul>
+<p><strong>ข้อจำกัด:</strong> ต้องมี Google Cloud project + OAuth client (Desktop app)</p>
+
+<h2 id="workspace-mcp">Workspace MCP</h2>
+<p><strong>หน้าที่:</strong> MCP server สำหรับ Google Sheets, Docs, Drive</p>
+<p><strong>พอร์ต:</strong> 127.0.0.1:3003</p>
+<p><strong>การเชื่อมต่อ:</strong></p>
+<ul>
+<li>Claude Desktop เรียก: <code>http://127.0.0.1:3003/mcp</code></li>
+<li>OAuth ครั้งแรก: <code>docker compose --profile auth-workspace up -d workspace-auth</code> → <code>http://localhost:3103</code></li>
+<li>ใช้ credentials ร่วมกับ Gmail MCP</li>
+</ul>
+
+<h2 id="maps-mcp">Maps MCP</h2>
+<p><strong>หน้าที่:</strong> MCP server สำหรับ Google Maps — ค้นหาสถานที่, เส้นทาง, geocoding</p>
+<p><strong>พอร์ต:</strong> 127.0.0.1:3004</p>
+<p><strong>การเชื่อมต่อ:</strong></p>
+<ul>
+<li>Claude Desktop เรียก: <code>http://127.0.0.1:3004/mcp</code></li>
+<li>ต้องมี <code>MAPS_API_KEY</code> ใน <code>.env</code></li>
+</ul>
+
+<h2 id="searxng">SearXNG</h2>
+<p><strong>หน้าที่:</strong> Self-hosted meta-search engine — รวมผลจากหลาย search engine โดยไม่ track</p>
+<p><strong>พอร์ต:</strong> 8888</p>
+<p><strong>การเชื่อมต่อ:</strong></p>
+<ul>
+<li>ผู้ใช้เข้า UI ที่ <code>http://localhost:8888</code></li>
+<li>Search Adapter เรียกผ่าน <code>http://searxng:8080</code> (internal)</li>
+<li>ตั้งค่าที่ <code>cowork-search/searxng/settings.yml</code></li>
+</ul>
+
+<h2 id="search-adapter">Search Adapter</h2>
+<p><strong>หน้าที่:</strong> FastAPI HTTPS wrapper รอบ SearXNG สำหรับ Claude tools เรียกใช้</p>
+<p><strong>พอร์ต:</strong> 8090 (self-signed TLS)</p>
+<p><strong>การเชื่อมต่อ:</strong></p>
+<ul>
+<li>รับ query แปลงเป็น SearXNG API call</li>
+<li>เสิร์ฟ self-signed cert จาก <code>cowork-search/certs/</code></li>
+</ul>
+
+<h2 id="grafana">Grafana</h2>
+<p><strong>หน้าที่:</strong> Dashboard สำหรับ visualization logs และ metrics</p>
+<p><strong>พอร์ต:</strong> 127.0.0.1:23000</p>
+<p><strong>การเชื่อมต่อ:</strong></p>
+<ul>
+<li>Login: <code>admin</code> / <code>${GRAFANA_ADMIN_PASSWORD}</code></li>
+<li>Dashboard เริ่มต้น: <code>cowork-overview</code></li>
+<li>Provisioning อัตโนมัติจาก <code>cowork-otel-grafana/grafana/provisioning/</code></li>
+</ul>
+
+<h2 id="loki">Loki</h2>
+<p><strong>หน้าที่:</strong> Log aggregation — เก็บ logs จากทุก service</p>
+<p><strong>พอร์ต:</strong> internal เท่านั้น (เข้าผ่าน Grafana)</p>
+<p><strong>การเชื่อมต่อ:</strong></p>
+<ul>
+<li>รับ logs จาก OTel Collector</li>
+<li>สอบถามด้วย LogQL ใน Grafana</li>
+<li>Volume: <code>loki-data</code></li>
+</ul>
+
+<h2 id="otel">OpenTelemetry Collector</h2>
+<p><strong>หน้าที่:</strong> รับ OTLP HTTP (logs/metrics/traces) แล้วส่งต่อไป Loki</p>
+<p><strong>พอร์ต:</strong> 24318 (OTLP HTTP)</p>
+<p><strong>การเชื่อมต่อ:</strong></p>
+<ul>
+<li>Service ส่ง telemetry มาที่ <code>http://&lt;host&gt;:24318/v1/logs</code></li>
+<li>Config ที่ <code>cowork-otel-grafana/otel/otel-collector-config.yaml</code></li>
+</ul>
+
+<h2 id="security">Security Model</h2>
+<ul>
+<li><strong>JWT verification:</strong> RS256 only, JWKS cached, <code>iss</code>/<code>aud</code>/<code>exp</code> required, 30s leeway</li>
+<li><strong>Anti-spoofing:</strong> client-supplied <code>x-authenticated-user</code>/<code>x-authenticated-sub</code> ถูก strip เสมอ</li>
+<li><strong>Algorithm lockdown:</strong> ปฏิเสธ <code>alg: none</code> และ HS256</li>
+<li><strong>JWKS stale-while-error:</strong> ถ้า Authentik ล่ม ใช้ cache เดิม; ไม่มี → 503 (fail closed)</li>
+<li><strong>LiteLLM isolation:</strong> port 4000 expose เฉพาะ internal — bypass gateway ไม่ได้</li>
+<li><strong>MCP isolation:</strong> bind เฉพาะ <code>127.0.0.1</code></li>
+<li><strong>Secret hygiene:</strong> <code>.env</code>, <code>secrets/</code>, <code>*.pem</code>, <code>token*.json</code> ถูก ignore</li>
+<li><strong>RBAC groups:</strong> <code>claude-users</code> (allow), <code>claude-admins</code> (allow), <code>claude-suspended</code> (deny)</li>
+</ul>
+
+<h2 id="limitations">Known Limitations</h2>
+<table>
+<thead><tr><th>Item</th><th>Note</th><th>Mitigation</th></tr></thead>
+<tbody>
+<tr><td>8h access token TTL</td><td>Revocation gap สูงสุด 8 ชม.</td><td>ปรับใน blueprint → <code>minutes=15</code></td></tr>
+<tr><td>Single master key</td><td>Spend tracking ต่อ user ยังไม่แยก</td><td>ปู <code>x-authenticated-sub</code> ไว้แล้ว → ต่อยอดเป็น virtual keys</td></tr>
+<tr><td>Inference ไม่ผ่าน Cloudflare</td><td>หลีกเลี่ยง 100s idle timeout บน streaming</td><td>เรียก gateway ตรง (localhost/LAN)</td></tr>
+<tr><td>Cloudflare Tunnel token</td><td>Secret ใหม่ต้องตั้งเอง</td><td>ใส่ใน <code>.env</code> ตอน deploy</td></tr>
+</tbody>
+</table>
+
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  Claude 3P Platform · เอกสารรวม · ดู runbook ที่ <a href="runbook.html">หน้า Runbook</a>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -135,8 +135,10 @@ services:
 volumes:
   database:
     driver: local
+    name: gateway-auth_database
   redis:
     driver: local
+    name: gateway-auth_redis
   media:
     driver: local
   custom-templates:

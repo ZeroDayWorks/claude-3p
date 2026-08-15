@@ -1,0 +1,43 @@
+# Claude 3P — Central Docker Compose
+#
+# รันทุกระบบด้วยคำสั่งเดียว:
+#   docker compose up -d
+#
+# ใช้ `include:` อ้างอิง compose ย่อยของแต่ละระบบ (ไม่ copy ของเดิม)
+# แก้ไข compose ย่อยได้ที่เดิม — ที่นี่คือเพียงจุดรวม
+#
+# หมายเหตุ: บาง stack ต้องการ .env ก่อน (ดู runbook.html#setup-env)
+# - gateway-auth/.env          (PG_PASS, AUTHENTIK_SECRET_KEY, LITELLM_MASTER_KEY, OLLAMA_API_KEY, ...)
+# - mcp/gmail-mcp/.env         (MAPS_API_KEY, ...)
+# - cowork-otel-grafana/.env   (GRAFANA_ADMIN_PASSWORD, ...)
+#
+# Profiles (optional):
+#   --profile tunnel            Cloudflare Tunnel สำหรับ Authentik
+#   --profile auth              Gmail OAuth ครั้งแรก
+#   --profile auth-workspace    Workspace OAuth ครั้งแรก
+
+name: claude-3p
+
+include:
+  - path: gateway-auth/compose.yml
+  - path: cowork-search/docker-compose.yml
+  - path: cowork-otel-grafana/docker-compose.yml
+  - path: mcp/gmail-mcp/compose.yaml
+
+services:
+  # Static dashboard — จุดเข้าเดียวสำหรับทุกระบบ
+  # เสิร์ฟ HTML/CSS/JS จาก main-menu/html/ ผ่าน nginx
+  main-menu:
+    image: nginx:1.27-alpine
+    container_name: claude-3p-main-menu
+    ports:
+      - "16580:80"
+    volumes:
+      - ./main-menu/html:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    networks:
+      - main-menu
+
+networks:
+  main-menu:
+    driver: bridge

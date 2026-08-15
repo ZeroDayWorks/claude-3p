@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 3P — Main Menu</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="dot"></span> Claude 3P Platform</div>
+  <div class="spacer"></div>
+  <nav>
+    <a href="index.html">หน้าหลัก</a>
+    <a href="docs.html">เอกสาร</a>
+    <a href="runbook.html">Runbook</a>
+  </nav>
+  <button class="btn-icon" onclick="toggleTheme()" title="สลับธีม">◐</button>
+</header>
+
+<main class="container">
+  <div class="hero">
+    <h1>ยินดีต้อนรับสู่ Claude 3P</h1>
+    <p>จุดเชื่อมต่อรวมสำหรับระบบ OIDC SSO, AI Gateway, MCP tools และ observability — เปิดใช้งานทั้งหมดด้วย <code>docker compose up -d</code></p>
+  </div>
+
+  <div class="search-wrap">
+    <input id="search" class="search" type="text" placeholder="ค้นหาระบบ..." autocomplete="off">
+  </div>
+
+  <div class="section-title">AI Gateway & Authentication</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">🔐</div>
+        <div>
+          <div class="card-title">Authentik <span class="status-dot unknown" id="st-authentik" data-status-id="st-authentik" data-probe="http://localhost:9000/-/health/ready/"></span></div>
+          <div class="card-sub">OIDC Identity Provider</div>
+        </div>
+      </div>
+      <div class="card-desc">จัดการผู้ใช้, กลุ่ม (RBAC), และ OAuth/OIDC clients สำหรับ Claude Desktop</div>
+      <div class="card-meta">
+        <span class="tag port">:9000 (internal)</span>
+        <span class="tag">PostgreSQL 16</span>
+        <span class="tag">Redis 7</span>
+      </div>
+      <div class="card-actions">
+        <a class="btn primary" href="http://localhost:9000" target="_blank">เปิด</a>
+        <a class="btn" href="docs.html#authentik">Docs</a>
+        <a class="btn" href="runbook.html#authentik">Runbook</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">🚪</div>
+        <div>
+          <div class="card-title">Claude Gateway <span class="status-dot unknown" id="st-gateway" data-status-id="st-gateway" data-probe="http://localhost:4100/health"></span></div>
+          <div class="card-sub">FastAPI — Dual Auth Proxy</div>
+        </div>
+      </div>
+      <div class="card-desc">ยืนยัน JWT (RS256) จาก Authentik แล้วส่งต่อไป LiteLLM ด้วย master key — กัน bypass</div>
+      <div class="card-meta">
+        <span class="tag port">:4100</span>
+        <span class="tag green">JWT + master key</span>
+      </div>
+      <div class="card-actions">
+        <a class="btn primary" href="http://localhost:4100/health" target="_blank">เปิด</a>
+        <a class="btn" href="docs.html#claude-gateway">Docs</a>
+        <a class="btn" href="runbook.html#claude-gateway">Runbook</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">⚡</div>
+        <div>
+          <div class="card-title">LiteLLM <span class="status-dot unknown" id="st-litellm" data-status-id="st-litellm" data-probe="http://localhost:4000/health/liveliness"></span></div>
+          <div class="card-sub">OpenAI-compatible Proxy</div>
+        </div>
+      </div>
+      <div class="card-desc">Model routing ไป Ollama Cloud / OpenCode — port 4000 expose เฉพาะ 127.0.0.1</div>
+      <div class="card-meta">
+        <span class="tag port">127.0.0.1:4000</span>
+        <span class="tag">PostgreSQL</span>
+      </div>
+      <div class="card-actions">
+        <a class="btn primary" href="http://localhost:4000/ui" target="_blank">เปิด UI</a>
+        <a class="btn" href="docs.html#litellm">Docs</a>
+        <a class="btn" href="runbook.html#litellm">Runbook</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-title">MCP Servers</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">📧</div>
+        <div>
+          <div class="card-title">Gmail MCP <span class="status-dot unknown" id="st-gmail" data-status-id="st-gmail" data-probe="http://localhost:3001/health"></span></div>
+          <div class="card-sub">Gmail API — Streamable HTTP</div>
+        </div>
+      </div>
+      <div class="card-desc">อ่าน/เขียน/ค้นอีเมลผ่าน Google OAuth — สำหรับ Claude Desktop/Code เรียกเป็น MCP tool</div>
+      <div class="card-meta">
+        <span class="tag port">127.0.0.1:3001</span>
+        <span class="tag purple">OAuth Google</span>
+      </div>
+      <div class="card-actions">
+        <a class="btn primary" href="http://localhost:3001/health" target="_blank">ตรวจสุขภาพ</a>
+        <a class="btn" href="docs.html#gmail-mcp">Docs</a>
+        <a class="btn" href="runbook.html#gmail-mcp">Runbook</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-title">Search</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">🔎</div>
+        <div>
+          <div class="card-title">SearXNG <span class="status-dot unknown" id="st-searxng" data-status-id="st-searxng" data-probe="http://localhost:8888"></span></div>
+          <div class="card-sub">Self-hosted Meta-search</div>
+        </div>
+      </div>
+      <div class="card-desc">เครื่องมือค้นหาเว็บแบบ meta-search ที่ self-hosted — ความเป็นส่วนตัวสูง</div>
+      <div class="card-meta">
+        <span class="tag port">:8888</span>
+      </div>
+      <div class="card-actions">
+        <a class="btn primary" href="http://localhost:8888" target="_blank">เปิด</a>
+        <a class="btn" href="docs.html#searxng">Docs</a>
+        <a class="btn" href="runbook.html#searxng">Runbook</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">🧩</div>
+        <div>
+          <div class="card-title">Search Adapter <span class="status-dot unknown" id="st-adapter" data-status-id="st-adapter" data-probe="https://localhost:8090"></span></div>
+          <div class="card-sub">HTTPS Wrapper</div>
+        </div>
+      </div>
+      <div class="card-desc">FastAPI HTTPS adapter รอบ SearXNG สำหรับ Claude tool เรียกใช้</div>
+      <div class="card-meta">
+        <span class="tag port">:8090</span>
+        <span class="tag amber">self-signed TLS</span>
+      </div>
+      <div class="card-actions">
+        <a class="btn primary" href="https://localhost:8090" target="_blank">เปิด</a>
+        <a class="btn" href="docs.html#search-adapter">Docs</a>
+        <a class="btn" href="runbook.html#search-adapter">Runbook</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-title">Observability</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">📊</div>
+        <div>
+          <div class="card-title">Grafana <span class="status-dot unknown" id="st-grafana" data-status-id="st-grafana" data-probe="http://localhost:23000"></span></div>
+          <div class="card-sub">Dashboards & Visualization</div>
+        </div>
+      </div>
+      <div class="card-desc">แดชบอร์ดสำหรับดู logs และ metrics — login ด้วย admin / รหัสจาก .env</div>
+      <div class="card-meta">
+        <span class="tag port">127.0.0.1:23000</span>
+        <span class="tag">Loki</span>
+      </div>
+      <div class="card-actions">
+        <a class="btn primary" href="http://localhost:23000" target="_blank">เปิด</a>
+        <a class="btn" href="docs.html#grafana">Docs</a>
+        <a class="btn" href="runbook.html#grafana">Runbook</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">📜</div>
+        <div>
+          <div class="card-title">Loki</div>
+          <div class="card-sub">Log Aggregation</div>
+        </div>
+      </div>
+      <div class="card-desc">เก็บ logs จากทุก service ผ่าน OTel collector — สอบถามด้วย LogQL ใน Grafana</div>
+      <div class="card-meta">
+        <span class="tag">internal only</span>
+        <span class="tag">volume: loki-data</span>
+      </div>
+      <div class="card-actions">
+        <a class="btn" href="docs.html#loki">Docs</a>
+        <a class="btn" href="runbook.html#loki">Runbook</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">🌡️</div>
+        <div>
+          <div class="card-title">OpenTelemetry Collector <span class="status-dot unknown" id="st-otel" data-status-id="st-otel" data-probe="http://localhost:24318"></span></div>
+          <div class="card-sub">Telemetry Pipeline</div>
+        </div>
+      </div>
+      <div class="card-desc">รับ OTLP HTTP (logs/metrics/traces) ที่ port 24318 แล้วส่งต่อไป Loki</div>
+      <div class="card-meta">
+        <span class="tag port">:24318 (OTLP HTTP)</span>
+      </div>
+      <div class="card-actions">
+        <a class="btn" href="docs.html#otel">Docs</a>
+        <a class="btn" href="runbook.html#otel">Runbook</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="empty" id="emptyState" style="display:none;">
+    <h3>ไม่พบระบบที่ตรงกับการค้นหา</h3>
+    <p>ลองคำอื่น หรือล้างช่องค้นหา</p>
+  </div>
+</main>
+
+<footer class="footer">
+  Claude 3P Platform · <code>docker compose up -d</code> ที่ root · Main menu on :16580
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

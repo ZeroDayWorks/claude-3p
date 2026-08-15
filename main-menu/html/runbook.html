@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 3P — Runbook</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="dot"></span> Claude 3P Platform</div>
+  <div class="spacer"></div>
+  <nav>
+    <a href="index.html">หน้าหลัก</a>
+    <a href="docs.html">เอกสาร</a>
+    <a href="runbook.html">Runbook</a>
+  </nav>
+  <button class="btn-icon" onclick="toggleTheme()" title="สลับธีม">◐</button>
+</header>
+
+<main class="container">
+  <div class="hero">
+    <h1>Runbook</h1>
+    <p>ขั้นตอนปฏิบัติสำหรับ start/stop/healthcheck/backup/troubleshoot — ทำเป็น static อ้างอิงได้ทันที</p>
+  </div>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <h3>Quick Start</h3>
+      <a href="#prereq">Prerequisites</a>
+      <a href="#start-all">Start ทั้งหมด</a>
+      <a href="#stop-all">Stop ทั้งหมด</a>
+      <a href="#status">ตรวจสถานะ</a>
+      <h3>First-time Setup</h3>
+      <a href="#setup-env">สร้าง .env</a>
+      <a href="#setup-secrets">Generate secrets</a>
+      <a href="#setup-oauth">OAuth MCP ครั้งแรก</a>
+      <h3>Per-system</h3>
+      <a href="#authentik">Authentik</a>
+      <a href="#claude-gateway">Claude Gateway</a>
+      <a href="#litellm">LiteLLM</a>
+      <a href="#gmail-mcp">Gmail MCP</a>
+      <a href="#workspace-mcp">Workspace MCP</a>
+      <a href="#maps-mcp">Maps MCP</a>
+      <a href="#searxng">SearXNG</a>
+      <a href="#search-adapter">Search Adapter</a>
+      <a href="#grafana">Grafana</a>
+      <a href="#loki">Loki</a>
+      <a href="#otel">OTel Collector</a>
+      <h3>Operations</h3>
+      <a href="#backup">Backup</a>
+      <a href="#restore">Restore</a>
+      <a href="#troubleshoot">Troubleshooting</a>
+      <a href="#claude-desktop">ตั้ง Claude Desktop</a>
+    </aside>
+
+    <div class="docs-content">
+
+<h2 id="prereq">Prerequisites</h2>
+<div class="runbook-step">
+<h3><span class="num">✓</span> สิ่งที่ต้องมี</h3>
+<ul>
+<li>Docker Desktop (หรือ Docker Engine + Compose v2)</li>
+<li>โดเมนของตัวเองบน Cloudflare (ถ้าจะ deploy โหมด tunnel)</li>
+<li>Google Cloud project + OAuth client (Desktop app) สำหรับ MCP</li>
+</ul>
+</div>
+
+<h2 id="start-all">Start ระบบทั้งหมด</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> รันทุกอย่างด้วยคำสั่งเดียว</h3>
+<p>ที่ root ของ repo:</p>
+<pre><code>docker compose up -d</code></pre>
+<p>จะรวมทุก service: Authentik, Claude Gateway, LiteLLM, MCP, SearXNG, Grafana, OTel, และ Main Menu — cloudflared tunnel รวมอยู่ด้วย (ใช้ <code>CLOUDFLARE_TUNNEL_TOKEN</code> จาก <code>gateway-auth/.env</code>)</p>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">2</span> โหมด Cloudflare Tunnel (ถ้าใช้)</h3>
+<pre><code>docker compose --profile tunnel up -d</code></pre>
+<p>ไม่ต้องใช้ flag พิเศษ — cloudflared tunnel รวมอยู่ใน default แล้ว ถ้าไม่ต้องการ tunnel ใช้ <code>docker compose up -d --no-deps --exclude cloudflared</code></p>
+</div>
+
+<h2 id="stop-all">Stop ระบบทั้งหมด</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> Stop + เก็บ volumes</h3>
+<pre><code>docker compose stop</code></pre>
+<p>หรือ <code>docker compose down</code> (เก็บ volumes ไว้)</p>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">2</span> ล้างข้อมูลด้วย (ระวัง!)</h3>
+<pre><code>docker compose down -v</code></pre>
+<p>จะลบ volumes ทั้งหมด — ใช้เฉพาะตอนเริ่มใหม่</p>
+</div>
+
+<h2 id="status">ตรวจสถานะ</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> ดูทุก container</h3>
+<pre><code>docker compose ps</code></pre>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">2</span> ดู logs ของ service</h3>
+<pre><code>docker compose logs -f claude-gateway
+docker compose logs -f server         # authentik
+docker compose logs -f gmail-mcp</code></pre>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">3</span> เข้า dashboard</h3>
+<p>เปิด <code>http://localhost:65880</code> — เห็นสถานะแบบเรียลไทม์ (best-effort)</p>
+</div>
+
+<h2 id="setup-env">สร้าง .env</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> คัดลอกจากตัวอย่าง</h3>
+<pre><code>cp gateway-auth/.env.example gateway-auth/.env
+cp mcp/gmail-mcp/.env.example mcp/gmail-mcp/.env
+cp cowork-otel-grafana/.env.example cowork-otel-grafana/.env</code></pre>
+</div>
+
+<h2 id="setup-secrets">Generate secrets</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> Authentik secrets</h3>
+<pre><code>cd gateway-auth
+./authentik/scripts/generate-secrets.sh >> .env</code></pre>
+<p>จะได้ <code>PG_PASS</code>, <code>AUTHENTIK_SECRET_KEY</code></p>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">2</span> LiteLLM master key</h3>
+<p>ตั้ง <code>LITELLM_MASTER_KEY</code> ใน <code>gateway-auth/.env</code> — ใช้ <code>openssl rand -hex 32</code> สร้าง</p>
+</div>
+
+<h2 id="setup-oauth">OAuth MCP ครั้งแรก</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> วาง credentials</h3>
+<p>วาง <code>credentials.json</code> จาก Google Cloud Console ที่ <code>mcp/gmail-mcp/secrets/</code></p>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">2</span> Gmail OAuth</h3>
+<pre><code>cd mcp/gmail-mcp
+docker compose --profile auth up -d gmail-auth
+# เปิด http://localhost:3101 → login Google → บันทึก token
+docker compose --profile auth down</code></pre>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">3</span> Workspace OAuth</h3>
+<pre><code>docker compose --profile auth-workspace up -d workspace-auth
+# เปิด http://localhost:3103 → login Google
+docker compose --profile auth-workspace down</code></pre>
+</div>
+
+<h2 id="authentik">Authentik</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> หลัง start ครั้งแรก</h3>
+<p>เข้า <code>http://localhost:9000</code> (หรือผ่าน tunnel) → setup admin account</p>
+<p>Blueprint <code>claude-desktop.yaml</code> จะสร้าง application, groups, client อัตโนมัติ</p>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">2</span> ตรวจสุขภาพ</h3>
+<pre><code>curl http://localhost:9000/-/health/ready/
+docker compose logs server</code></pre>
+</div>
+
+<h2 id="claude-gateway">Claude Gateway</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> ตรวจสุขภาพ</h3>
+<pre><code>curl http://localhost:4100/health</code></pre>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">2</span> ทดสอบ inference</h3>
+<pre><code>curl -X POST http://localhost:4100/v1/chat/completions \
+  -H "Authorization: Bearer $LITELLM_MASTER_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"hi"}]}'</code></pre>
+</div>
+
+<h2 id="litellm">LiteLLM</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> ตรวจสุขภาพ</h3>
+<pre><code>curl http://127.0.0.1:4000/health/liveliness</code></pre>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">2</span> เปิด UI</h3>
+<p><code>http://localhost:4000/ui</code> — login ด้วย <code>LITELLM_UI_USERNAME</code> / <code>LITELLM_UI_PASSWORD</code></p>
+</div>
+
+<h2 id="gmail-mcp">Gmail MCP</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> ตรวจสุขภาพ</h3>
+<pre><code>curl http://127.0.0.1:3001/health</code></pre>
+</div>
+
+<h2 id="workspace-mcp">Workspace MCP</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> ตรวจสุขภาพ</h3>
+<pre><code>curl http://127.0.0.1:3003/health</code></pre>
+</div>
+
+<h2 id="maps-mcp">Maps MCP</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> ตรวจสุขภาพ</h3>
+<pre><code>curl http://127.0.0.1:3004/health</code></pre>
+</div>
+
+<h2 id="searxng">SearXNG</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> ใช้งาน</h3>
+<p>เปิด <code>http://localhost:8888</code></p>
+</div>
+
+<h2 id="search-adapter">Search Adapter</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> ทดสอบ</h3>
+<pre><code>curl --ssl-no-revoke https://localhost:8090/health</code></pre>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">⚠</span> SSL error จาก Claude Desktop/Code</h3>
+<p>Adapter ใช้ mkcert cert (trusted ใน Windows). ถ้า Claude รันบน host ต้อง set:</p>
+<pre><code># set ที่ User env (ทำครั้งเดียว)
+[Environment]::SetEnvironmentVariable("NODE_EXTRA_CA_CERTS", "C:\Users\&lt;user&gt;\AppData\Local\mkcert\rootCA.pem", "User")
+
+# ดู CAROOT
+mkcert -CAROOT
+
+# รีสตาร์ท Claude Desktop/Code หลัง set</code></pre>
+<p>ถ้ายังไม่ผ่าน ลองสร้าง cert ใหม่: <code>mkcert localhost 127.0.0.1 ::1</code> แล้ว copy เป็น <code>cert.pem</code> / <code>key.pem</code> ใน <code>cowork-search/certs/</code></p>
+</div>
+
+<h2 id="grafana">Grafana</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> เข้าใช้</h3>
+<p><code>http://localhost:23000</code> — login: <code>admin</code> / <code>${GRAFANA_ADMIN_PASSWORD}</code> (default: <code>cowork-poc</code>)</p>
+</div>
+
+<h2 id="loki">Loki</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> สอบถาม logs</h3>
+<p>ใน Grafana → Explore → Loki → ใช้ LogQL เช่น <code>{job="claude-gateway"}</code></p>
+</div>
+
+<h2 id="otel">OTel Collector</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> ส่ง telemetry ทดสอบ</h3>
+<pre><code>curl -X POST http://localhost:24318/v1/logs \
+  -H "Content-Type: application/json" \
+  -d '{"resourceLogs":[{"resource":{},"scopeLogs":[{"logRecords":[{"timeUnixNano":"0","body":{"stringValue":"test log"}}]}]}]}'</code></pre>
+</div>
+
+<h2 id="backup">Backup</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> Backup Authentik (PostgreSQL)</h3>
+<pre><code>docker compose exec db pg_dump -U authentik authentik &gt; backup-authentik-$(date +%Y%m%d).sql</code></pre>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">2</span> Backup LiteLLM DB</h3>
+<pre><code>docker compose exec litellm-db pg_dump -U litellm litellm &gt; backup-litellm-$(date +%Y%m%d).sql</code></pre>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">3</span> Backup volumes</h3>
+<pre><code>docker run --rm -v claude-3p_database:/data -v $PWD:/backup alpine \
+  tar czf /backup/authentik-data-$(date +%Y%m%d).tar.gz /data</code></pre>
+</div>
+
+<h2 id="restore">Restore</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> Restore Authentik DB</h3>
+<pre><code>cat backup-authentik-YYYYMMDD.sql | docker compose exec -T db psql -U authentik authentik</code></pre>
+</div>
+
+<h2 id="troubleshoot">Troubleshooting</h2>
+
+<div class="runbook-step">
+<h3><span class="num">⚠</span> Container ไม่ขึ้น</h3>
+<pre><code>docker compose ps -a
+docker compose logs &lt;service&gt; --tail 100</code></pre>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">⚠</span> Gateway 503 — JWKS fetch fail</h3>
+<p>ตรวจ Authentik ขึ้นหรือไม่ (<code>docker compose ps server</code>) — Gateway ใช้ cache ถ้ามี ถ้าไม่มีจะ fail closed</p>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">⚠</span> MCP 401 — token หมดอายุ</h3>
+<p>รัน OAuth ใหม่: <code>docker compose --profile auth up -d gmail-auth</code> → login อีกครั้ง</p>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">⚠</span> Port ชน</h3>
+<p>ตรวจ <code>netstat -ano | findstr :4100</code> (Windows) หรือ <code>lsof -i :4100</code> (Linux/Mac)</p>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">⚠</span> ลืม LITELLM_MASTER_KEY</h3>
+<p>ดูใน <code>gateway-auth/.env</code> — ถ้าหายต้อง generate ใหม่และ restart LiteLLM + Gateway</p>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">⚠</span> Build ล้มเหลว</h3>
+<pre><code>docker compose build --no-cache &lt;service&gt;</code></pre>
+</div>
+
+<h2 id="claude-desktop">ตั้ง Claude Desktop</h2>
+<div class="runbook-step">
+<h3><span class="num">1</span> API endpoint</h3>
+<table>
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>Base URL</td><td><code>http://localhost:4100</code></td></tr>
+<tr><td>API Key</td><td><code>LITELLM_MASTER_KEY</code> (จาก <code>gateway-auth/.env</code>)</td></tr>
+</table>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">2</span> MCP servers</h3>
+<table>
+<tr><th>Server</th><th>URL</th></tr>
+<tr><td>Gmail</td><td><code>http://127.0.0.1:3001/mcp</code></td></tr>
+<tr><td>Workspace</td><td><code>http://127.0.0.1:3003/mcp</code></td></tr>
+<tr><td>Maps</td><td><code>http://127.0.0.1:3004/mcp</code></td></tr>
+</table>
+</div>
+
+<div class="runbook-step">
+<h3><span class="num">3</span> OAuth SSO</h3>
+<p>เปิด Claude Desktop แล้ว login ผ่าน <code>https://${AUTH_DOMAIN}/application/o/authorize/</code></p>
+</div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  Claude 3P Platform · Runbook static · ดูรายละเอียดเพิ่มเติมใน <a href="docs.html">เอกสาร</a>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
