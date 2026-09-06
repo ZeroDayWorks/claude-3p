@@ -89,3 +89,9 @@ temp/
 *.zip
 *.7z
 *.rar
+
+# -------- Large demo media (too big for git; share via Drive/SharePoint) --------
+*.mp4
+*.mov
+*.avi
+*.mkv
